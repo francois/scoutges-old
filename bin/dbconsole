@@ -1,0 +1,2 @@
+#!/bin/sh
+exec psql --host localhost --port 5432 --dbname scoutges_development

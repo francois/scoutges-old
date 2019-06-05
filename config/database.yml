@@ -1,0 +1,12 @@
+development:
+  adapter: postgresql
+  database_name: scoutges_development
+  pool: 4
+test:
+  adapter: postgresql
+  database_name: scoutges_test
+  pool: 4
+production:
+  adapter: postgresql
+  pool: 4
+  url: <%= ENV.fetch("DATABASE_URL") %>

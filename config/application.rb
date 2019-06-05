@@ -29,5 +29,9 @@ module Scoutges
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    config.sequel.max_connections = 4
+    config.sequel.schema_dump     = true
+    config.sequel.schema_format   = :sql
   end
 end
