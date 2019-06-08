@@ -6,6 +6,7 @@ Sequel.migration do
       column :user_slug, :text,   null: false, unique: true
       column :name,      :citext, null: false
       column :email,     :citext, null: false
+      column :phone,     :citext
       column :password,  :text,   null: false
 
       column :created_at, :timestamptz, null: false, default: Sequel.function(:now)

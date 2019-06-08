@@ -1,6 +1,6 @@
 class TroopsController < ApplicationController
   TroopSchema = Dry::Schema.Params do
-    required(:name).filled(:string)
+    required(:name).filled(Types::StrippedString)
   end
 
   def create

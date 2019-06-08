@@ -1,18 +1,37 @@
 <h1><%= @group[:name] %></h1>
-<% @group[:troops].each do |troop| %>
+
+<h2>Members</h2>
+<table>
+  <thead>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Phone</th>
+  </thead>
+  <tbody>
+    <% @group[:members].sort_by{|row| row[:name].downcase}.each do |member| %>
+      <tr>
+        <td><%= member.fetch(:name) %></td>
+        <td><%= mail_to member[:email], member[:email] %></td>
+        <td><%= link_to member[:phone], "tel:+1#{member[:phone].gsub(/[^\d]/, "").sub(/\A1/, "")}" if member[:phone] %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<% @group[:troops].sort_by{|troop| troop[:name].downcase}.each do |troop| %>
   <h2><%= troop[:name] %></h2>
   <table>
     <thead>
       <th>Name</th>
-      <th>Phone</th>
       <th>Email</th>
+      <th>Phone</th>
     </thead>
     <tbody>
       <% troop[:members].each do |member| %>
         <tr>
           <td><%= member[:name] %></td>
-          <td><%#= link_to member[:phone], "+1#{member[:phone].gsub(/[^\d]/, "")}" %></td>
           <td><%= mail_to member[:email], member[:email] %></td>
+          <td><%= link_to member[:phone], "tel:+1#{member[:phone].gsub(/[^\d]/, "").sub(/\A1/, "")}" if member[:phone] %></td>
         </tr>
       <% end %>
     </tbody>
@@ -25,4 +44,26 @@
   <%= text_field_tag "registration[name]" %><br>
 
   <%= submit_tag "Register Troop" %>
+<% end %>
+
+<h3>Register Member</h3>
+<%= form_tag group_members_path(@group[:group_slug]) do %>
+  <%= label_tag :member_name, "Name" %><br>
+  <%= text_field_tag "member[name]" %><br>
+
+  <%= label_tag :member_email, "Email" %><br>
+  <%= email_field_tag "member[email]" %><br>
+
+  <%= submit_tag "Register Member" %>
+<% end %>
+
+<h3>Add member to troop</h3>
+<%= form_tag group_enrollments_path(@group[:group_slug]) do %>
+  <%= label_tag :enrollment_email, "Person" %><br>
+  <%= select_tag "enrollment[email]", options_for_select(@group[:members].map{|member| [member[:name], member[:email]]}.sort_by{|arr| arr.first.downcase}) %><br>
+
+  <%= label_tag :enrollment_troop_slug, "Troop" %><br>
+  <%= select_tag "enrollment[troop_slug]", options_for_select(@group[:troops].map{|troop| [troop[:name], troop[:troop_slug]]}.sort_by{|arr| arr.first.downcase}) %><br>
+
+  <%= submit_tag "Add Member to Troop" %>
 <% end %>

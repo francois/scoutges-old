@@ -373,6 +373,7 @@ CREATE TABLE public.users (
     user_slug text NOT NULL,
     name public.citext NOT NULL,
     email public.citext NOT NULL,
+    phone public.citext,
     password text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL

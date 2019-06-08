@@ -63,6 +63,9 @@ class Scoutinv
   end
 
   def register_user(name:, email:, password:)
+    exists = @users_ds.where(email: email).first
+    return exists[:user_slug] if exists
+
     generate_slug.tap do |slug|
       @users_ds.insert(
         user_slug:  slug,
@@ -74,6 +77,8 @@ class Scoutinv
   end
 
   def attach_user_to_group(group_slug:, email:)
+    return nil if @memberships_ds.where(group_slug: group_slug, email: email).first
+
     @memberships_ds.insert(
       group_slug: group_slug,
       email:      email,
@@ -83,6 +88,8 @@ class Scoutinv
   end
 
   def attach_user_to_troop(email:, group_slug:, troop_slug:)
+    return nil if @enrollments_ds.where(group_slug: group_slug, troop_slug: troop_slug, email: email).first
+
     @enrollments_ds.insert(
       email:      email,
       group_slug: group_slug,
@@ -383,15 +390,27 @@ class Scoutinv
   def find_group(slug)
     result = @groups_ds
       .join(@troops_ds.as(:troops), [:group_slug])
-      .left_join(@enrollments_ds.as(:enrollments), [:group_slug, :troop_slug])
-      .left_join(@users_ds.as(:users), [:email])
+      .join(@memberships_ds, [:group_slug])
+      .join(@users_ds.as(:users), [:email])
+      .left_join(@enrollments_ds.as(:enrollments), [:group_slug, :troop_slug, :email])
       .select(:group_slug, Sequel[:groups][:name].as(:group_name))
       .select_append(:admin_name, :admin_email, :admin_phone)
       .select_append(Sequel[:groups][:created_at].as(:group_created_at))
       .select_append(:troop_slug, Sequel[:troops][:name].as(:troop_name))
-      .select_append(:user_slug, Sequel[:users][:name].as(:user_name), Sequel[:users][:email].as(:user_email))
+      .select_append(:user_slug, Sequel[:users][:name].as(:user_name), Sequel[:users][:email].as(:user_email), Sequel[:users][:phone].as(:user_phone))
+      .select_append(Sequel[:enrollments][:id].as(:enrollment_id))
       .where(group_slug: slug)
       .to_a
+
+    members = result.each_with_object(Hash.new) do |row, memo|
+      email = row.fetch(:user_email)
+      memo[email] ||= {
+        email:      row.fetch(:user_email),
+        name:       row.fetch(:user_name),
+        phone:      row.fetch(:user_phone),
+        user_slug:  row.fetch(:user_slug),
+      }
+    end.values
 
     troops = result.each_with_object(Hash.new) do |row, memo|
       troop_slug = row.fetch(:troop_slug)
@@ -403,10 +422,11 @@ class Scoutinv
       }
 
       memo[troop_slug][:members] << {
-        user_slug: row.fetch(:user_slug),
-        name:      row.fetch(:user_name),
         email:     row.fetch(:user_email),
-      } if row.fetch(:user_email)
+        name:      row.fetch(:user_name),
+        phone:     row.fetch(:user_phone),
+        user_slug: row.fetch(:user_slug),
+      } if row.fetch(:enrollment_id)
     end.values
 
     {
@@ -416,6 +436,7 @@ class Scoutinv
       admin_name:   result.first.fetch(:admin_name),
       admin_email:  result.first.fetch(:admin_email),
       admin_phone:  result.first.fetch(:admin_phone),
+      members:      members,
       troops:       troops,
     }
   end
