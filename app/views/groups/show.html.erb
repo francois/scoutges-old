@@ -1,0 +1,20 @@
+<h1><%= @group[:name] %></h1>
+<% @group[:troops].each do |troop| %>
+  <h2><%= troop[:name] %></h2>
+  <table>
+    <thead>
+      <th>Name</th>
+      <th>Phone</th>
+      <th>Email</th>
+    </thead>
+    <tbody>
+      <% troop[:members].each do |member| %>
+        <tr>
+          <td><%= member[:name] %></td>
+          <td><%#= link_to member[:phone], "+1#{member[:phone].gsub(/[^\d]/, "")}" %></td>
+          <td><%= mail_to member[:email], member[:email] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

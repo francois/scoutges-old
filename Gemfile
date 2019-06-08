@@ -8,6 +8,7 @@ gem "bootsnap", ">= 1.1.0", require: false
 gem "byebug", groups: %i[ development test ], platforms: [:mri, :mingw, :x64_mingw]
 gem "database_cleaner", groups: %i[ test ]
 gem "dotenv-rails", groups: %i[ development test ]
+gem "dry-schema"
 gem "jbuilder", "~> 2.5"
 gem "listen", ">= 3.0.5", "< 3.2", groups: %i[ development ]
 gem "pg"

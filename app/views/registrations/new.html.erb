@@ -1,0 +1,30 @@
+<%= form_tag(registrations_path) do %>
+  <% if @result&.errors&.any? %>
+    <h3>Errors prevented this registration</h3>
+    <ul>
+      <% @result.errors.to_h.each do |key, errors| %>
+        <% errors.each do |error| %>
+          <li><%= key.to_s.humanize %> <%= error %></li>
+        <% end %>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <%= label_tag :registration_name, "Group Name" %><br>
+  <%= text_field_tag "registration[name]", @registration[:name], placeholder: "10th Group, Fleurimont" %><br>
+
+  <%= label_tag :registration_admin_name, "Admin Name" %><br>
+  <%= text_field_tag "registration[admin_name]", @registration[:admin_name], placeholder: "John Smith" %><br>
+
+  <%= label_tag :registration_admin_email, "Admin Email" %><br>
+  <%= email_field_tag "registration[admin_email]", @registration[:admin_email], placeholder: "baloo@example.org" %><br>
+
+  <%= label_tag :registration_admin_phone, "Admin Phone" %><br>
+  <%= phone_field_tag "registration[admin_phone]", @registration[:admin_phone], placeholder: "888-555-1212" %><br>
+
+  <%= label_tag :registration_admin_password, "Admin Password" %><br>
+  <%= password_field_tag "registration[admin_password]" %><br>
+  <p class="hint muted">At least 8 characters long</p>
+
+  <%= submit_tag %>
+<% end %>

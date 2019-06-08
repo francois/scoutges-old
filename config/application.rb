@@ -33,5 +33,8 @@ module Scoutges
     config.sequel.max_connections = 4
     config.sequel.schema_dump     = true
     config.sequel.schema_format   = :sql
+
+    # Because we use dry-schema, we don't need strong parameters
+    config.action_controller.permit_all_parameters = true
   end
 end

@@ -367,6 +367,46 @@ class Scoutinv
     ds.take(count)
   end
 
+  def find_group(slug)
+    result = @groups_ds
+      .join(@troops_ds.as(:troops), [:group_slug])
+      .join(@memberships_ds.as(:memberships), [:group_slug])
+      .join(@users_ds.as(:users), [:email])
+      .select(:group_slug, Sequel[:groups][:name].as(:group_name))
+      .select_append(:admin_name, :admin_email, :admin_phone)
+      .select_append(Sequel[:groups][:created_at].as(:group_created_at))
+      .select_append(:troop_slug, Sequel[:troops][:name].as(:troop_name))
+      .select_append(:user_slug, Sequel[:users][:name].as(:user_name), Sequel[:users][:email].as(:user_email))
+      .where(group_slug: slug)
+      .to_a
+
+    troops = result.each_with_object(Hash.new) do |row, memo|
+      troop_slug = row.fetch(:troop_slug)
+
+      memo[troop_slug] ||= {
+        troop_slug: troop_slug,
+        name:       row.fetch(:troop_name),
+        members:    [],
+      }
+
+      memo[troop_slug][:members] << {
+        user_slug: row.fetch(:user_slug),
+        name:      row.fetch(:user_name),
+        email:     row.fetch(:user_email),
+      }
+    end.values
+
+    {
+      group_slug:   result.first.fetch(:group_slug),
+      name:         result.first.fetch(:group_name),
+      created_at:   result.first.fetch(:group_created_at),
+      admin_name:   result.first.fetch(:admin_name),
+      admin_email:  result.first.fetch(:admin_email),
+      admin_phone:  result.first.fetch(:admin_phone),
+      troops:       troops,
+    }
+  end
+
   private
 
   attr_reader :blob_storage
