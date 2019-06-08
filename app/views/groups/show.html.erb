@@ -18,3 +18,11 @@
     </tbody>
   </table>
 <% end %>
+
+<h3>Register Troop</h3>
+<%= form_tag group_troops_path(@group[:group_slug]) do %>
+  <%= label_tag :registration_name, "Name" %><br>
+  <%= text_field_tag "registration[name]" %><br>
+
+  <%= submit_tag "Register Troop" %>
+<% end %>

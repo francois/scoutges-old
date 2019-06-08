@@ -4,6 +4,7 @@ class Scoutinv
 
   def initialize(
     blob_storage:       BlobStorage.new,
+    enrollments_ds:     DB[:enrollments],
     events_ds:          DB[:events],
     groups_ds:          DB[:groups],
     instances_ds:       DB[:instances],
@@ -15,6 +16,7 @@ class Scoutinv
     users_ds:           DB[:users]
   )
     @blob_storage      = blob_storage
+    @enrollments_ds    = enrollments_ds
     @events_ds         = events_ds
     @groups_ds         = groups_ds
     @instances_ds      = instances_ds
@@ -44,8 +46,9 @@ class Scoutinv
       )
 
       register_user(name: admin_name, email: admin_email, password: admin_password)
+      troop_slug = register_troop(group_slug: group_slug, name: "Gestion")
       attach_user_to_group(group_slug: group_slug, email: admin_email)
-      register_troop(group_slug: group_slug, name: "Gestion")
+      attach_user_to_troop(group_slug: group_slug, troop_slug: troop_slug, email: admin_email)
     end
   end
 
@@ -74,6 +77,16 @@ class Scoutinv
     @memberships_ds.insert(
       group_slug: group_slug,
       email:      email,
+    )
+
+    nil
+  end
+
+  def attach_user_to_troop(email:, group_slug:, troop_slug:)
+    @enrollments_ds.insert(
+      email:      email,
+      group_slug: group_slug,
+      troop_slug: troop_slug,
     )
 
     nil
@@ -370,8 +383,8 @@ class Scoutinv
   def find_group(slug)
     result = @groups_ds
       .join(@troops_ds.as(:troops), [:group_slug])
-      .join(@memberships_ds.as(:memberships), [:group_slug])
-      .join(@users_ds.as(:users), [:email])
+      .left_join(@enrollments_ds.as(:enrollments), [:group_slug, :troop_slug])
+      .left_join(@users_ds.as(:users), [:email])
       .select(:group_slug, Sequel[:groups][:name].as(:group_name))
       .select_append(:admin_name, :admin_email, :admin_phone)
       .select_append(Sequel[:groups][:created_at].as(:group_created_at))
@@ -393,7 +406,7 @@ class Scoutinv
         user_slug: row.fetch(:user_slug),
         name:      row.fetch(:user_name),
         email:     row.fetch(:user_email),
-      }
+      } if row.fetch(:user_email)
     end.values
 
     {

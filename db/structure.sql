@@ -68,6 +68,39 @@ ALTER SEQUENCE public.blobs_id_seq OWNED BY public.blobs.id;
 
 
 --
+-- Name: enrollments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.enrollments (
+    id bigint NOT NULL,
+    group_slug text NOT NULL,
+    troop_slug text NOT NULL,
+    email public.citext NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: enrollments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.enrollments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: enrollments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.enrollments_id_seq OWNED BY public.enrollments.id;
+
+
+--
 -- Name: events; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -264,7 +297,9 @@ CREATE TABLE public.reservations (
     group_slug text NOT NULL,
     event_slug text NOT NULL,
     instance_slug text NOT NULL,
-    reservation_slug text NOT NULL
+    reservation_slug text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -371,6 +406,13 @@ ALTER TABLE ONLY public.blobs ALTER COLUMN id SET DEFAULT nextval('public.blobs_
 
 
 --
+-- Name: enrollments id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.enrollments ALTER COLUMN id SET DEFAULT nextval('public.enrollments_id_seq'::regclass);
+
+
+--
 -- Name: events id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -440,6 +482,22 @@ ALTER TABLE ONLY public.blobs
 
 ALTER TABLE ONLY public.blobs
     ADD CONSTRAINT blobs_pkey PRIMARY KEY (blob_slug);
+
+
+--
+-- Name: enrollments enrollments_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.enrollments
+    ADD CONSTRAINT enrollments_id_key UNIQUE (id);
+
+
+--
+-- Name: enrollments enrollments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.enrollments
+    ADD CONSTRAINT enrollments_pkey PRIMARY KEY (troop_slug, email);
 
 
 --
@@ -635,6 +693,30 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: enrollments enrollments_group_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.enrollments
+    ADD CONSTRAINT enrollments_group_slug_fkey FOREIGN KEY (group_slug, email) REFERENCES public.memberships(group_slug, email) ON DELETE CASCADE;
+
+
+--
+-- Name: enrollments enrollments_troop_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.enrollments
+    ADD CONSTRAINT enrollments_troop_slug_fkey FOREIGN KEY (troop_slug) REFERENCES public.troops(troop_slug) ON DELETE CASCADE;
+
+
+--
+-- Name: events events_group_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.events
+    ADD CONSTRAINT events_group_slug_fkey FOREIGN KEY (group_slug) REFERENCES public.groups(group_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: instances instances_group_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -659,6 +741,14 @@ ALTER TABLE ONLY public.memberships
 
 
 --
+-- Name: products products_group_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_group_slug_fkey FOREIGN KEY (group_slug) REFERENCES public.groups(group_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: reservations reservations_group_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -680,12 +770,13 @@ ALTER TABLE ONLY public.reservations
 
 SET search_path TO "$user", public;
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190604040030_load_citext_extension.rb');
+INSERT INTO "schema_migrations" ("filename") VALUES ('20190604040200_create_groups.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190604040247_create_products.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190604040755_create_blobs.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190604044603_create_instances.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190605023048_create_events.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190605025146_create_reservations.rb');
-INSERT INTO "schema_migrations" ("filename") VALUES ('20190604040200_create_groups.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190605030611_create_troops.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190605030724_create_users.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190605030856_create_memberships.rb');
+INSERT INTO "schema_migrations" ("filename") VALUES ('20190608132556_create_enrollments.rb');
