@@ -1,0 +1,10 @@
+<% if errors&.any? %>
+  <h3>Errors prevented this registration</h3>
+  <ul>
+    <% errors.to_h.each do |key, errs| %>
+      <% errs.each do |error| %>
+        <li><%= key.to_s.humanize %> <%= error %></li>
+      <% end %>
+    <% end %>
+  </ul>
+<% end %>

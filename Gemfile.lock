@@ -88,7 +88,6 @@ GEM
       dry-logic (~> 1.0)
     erubi (1.8.0)
     ffi (1.11.1)
-    forme (1.10.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     i18n (1.6.0)
@@ -193,7 +192,6 @@ DEPENDENCIES
   database_cleaner
   dotenv-rails
   dry-schema
-  forme
   jbuilder (~> 2.5)
   listen (>= 3.0.5, < 3.2)
   pg
@@ -204,6 +202,7 @@ DEPENDENCIES
   sequel_pg
   spring
   spring-watcher-listen (~> 2.0.0)
+  sprockets
   web-console (>= 3.3.0)
 
 RUBY VERSION

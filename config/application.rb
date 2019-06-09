@@ -10,7 +10,7 @@ require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
 # require "action_cable/engine"
-# require "sprockets/railtie"
+require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
@@ -36,5 +36,7 @@ module Scoutges
 
     # Because we use dry-schema, we don't need strong parameters
     config.action_controller.permit_all_parameters = true
+
+    config.time_zone = "America/Montreal"
   end
 end

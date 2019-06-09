@@ -19,4 +19,5 @@ gem "sequel-rails"
 gem "sequel_pg", require: false
 gem "spring", groups: %i[ development ]
 gem "spring-watcher-listen", "~> 2.0.0", groups: %i[ development ]
+gem "sprockets"
 gem "web-console", ">= 3.3.0", groups: %i[ development ]

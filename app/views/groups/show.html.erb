@@ -12,7 +12,7 @@
       <tr>
         <td><%= member.fetch(:name) %></td>
         <td><%= mail_to member[:email], member[:email] %></td>
-        <td><%= link_to member[:phone], "tel:+1#{member[:phone].gsub(/[^\d]/, "").sub(/\A1/, "")}" if member[:phone] %></td>
+        <td><%= link_to member[:phone], "tel:+1#{member[:phone].gsub(/[^\d]/, "").sub(/\A\+?1/, "")}" if member[:phone] %></td>
       </tr>
     <% end %>
   </tbody>
@@ -31,7 +31,7 @@
         <tr>
           <td><%= member[:name] %></td>
           <td><%= mail_to member[:email], member[:email] %></td>
-          <td><%= link_to member[:phone], "tel:+1#{member[:phone].gsub(/[^\d]/, "").sub(/\A1/, "")}" if member[:phone] %></td>
+          <td><%= link_to member[:phone], "tel:+1#{member[:phone].gsub(/[^\d]/, "").sub(/\A\+?1/, "")}" if member[:phone] %></td>
         </tr>
       <% end %>
     </tbody>

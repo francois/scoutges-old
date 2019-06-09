@@ -441,6 +441,55 @@ class Scoutinv
     }
   end
 
+  def find_event(group_slug:, event_slug:)
+    rows = @events_ds
+      .left_join(@troops_ds.as(:troops), [:group_slug, :troop_slug])
+      .left_join(@enrollments_ds.as(:enrollments), [:group_slug, :troop_slug])
+      .left_join(@users_ds.as(:users), [:email])
+      .where(group_slug: group_slug, event_slug: event_slug)
+      .select(Sequel[:events][:name].as(:event_name))
+      .select_append(:group_slug, :troop_slug, :event_slug)
+      .select_append(:leaser_name, :leaser_email, :leaser_phone)
+      .select_append(Sequel[:events][:lease_on], Sequel[:events][:start_on])
+      .select_append(Sequel[:events][:end_on], Sequel[:events][:return_on])
+      .select_append(Sequel[:troops][:name].as(:troop_name))
+      .select_append(Sequel[:users][:name].as(:user_slug))
+      .select_append(Sequel[:users][:name].as(:user_name))
+      .select_append(Sequel[:users][:email].as(:user_email))
+      .select_append(Sequel[:users][:phone].as(:user_phone))
+      .to_a
+
+    event = rows
+      .first
+      .slice(:group_slug, :event_slug, :troop_slug, :leaser_name, :leaser_email, :leaser_phone, :lease_on, :start_on, :end_on, :return_on)
+
+    event.tap do
+      event[:name] = rows.first.fetch(:event_name)
+
+      if rows.first.fetch(:troop_name)
+        event[:troop] = {
+          group_slug: rows.first.fetch(:group_slug),
+          troop_slug: rows.first.fetch(:troop_slug),
+          name:       rows.first.fetch(:troop_name),
+        }
+      end
+
+      event[:members] = []
+      if rows.first.fetch(:user_slug)
+        event[:members] = rows.map do |row|
+          {
+            group_slug: row.fetch(:group_slug),
+            troop_slug: row.fetch(:troop_slug),
+            user_slug:  row.fetch(:user_slug),
+            name:       row.fetch(:user_name),
+            email:      row.fetch(:user_email),
+            phone:      row.fetch(:user_phone),
+          }
+        end
+      end
+    end
+  end
+
   private
 
   attr_reader :blob_storage

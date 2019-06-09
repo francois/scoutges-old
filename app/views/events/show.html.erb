@@ -1,0 +1,67 @@
+<h1><%= @event.fetch(:name) %></h1>
+
+<h2>Lease To</h2>
+<% if @event.fetch(:troop).any? %>
+  <h3><%= @event[:troop].fetch(:name) %></h3>
+  <ul>
+    <% @event.fetch(:members).each do |member| %>
+      <li>
+        <%= mail_to member.fetch(:name), member.fetch(:email) %>
+        <%#= link_to member.fetch(:phone), "tel:+1#{member.fetch(:phone).gsub(/[^\d]/, "").sub(/\A\+?1/, "")}" %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <h3><%= @event.fetch(:leaser_name) %></h3>
+  <ul>
+    <li>
+      <%= mail_to @event[:leaser_email], @event[:leaser_email] %>
+      <%= link_to @event[:phone], "tel:+1#{@event[:leaser_phone].gsub(/[^\d]/, "").sub(/\A\+?1/, "")}" %>
+    </li>
+  </ul>
+<% end %>
+
+<h2>Schedule</h2>
+<table class="calendar">
+  <thead>
+    <th>Sun</th>
+    <th>Mon</th>
+    <th>Tue</th>
+    <th>Wed</th>
+    <th>Thu</th>
+    <th>Fri</th>
+    <th>Sat</th>
+  </thead>
+  <tbody>
+    <% ((Date.current.beginning_of_week - 1) .. (@event.fetch(:return_on).beginning_of_week - 1 + 6 + 7)).step(7) do |sunday| %>
+      <tr>
+        <% (sunday .. (sunday + 6)).each do |date| %>
+          <td class="<%= :today if date == Date.current %> <%= :leased if (@event.fetch(:lease_on) .. @event.fetch(:return_on)).include?(date) %> <%= :active if (@event.fetch(:start_on) .. @event.fetch(:end_on)).include?(date) %>">
+            <% if date == (Date.current.beginning_of_week - 1) %>
+              <%= date.strftime("%b %-d, %Y") %>
+            <% elsif date.year != (date - 1).year %>
+              <%= date.strftime("%b %-d, %Y") %>
+            <% elsif date.month != (date - 1).month %>
+              <%= date.strftime("%b %-d") %>
+            <% else %>
+              <%= date.strftime("%-d") %>
+            <% end %>
+            <p>
+            <% if date == Date.current %>
+              Today
+            <% elsif date == @event.fetch(:lease_on) %>
+              Pick up
+            <% elsif date == @event.fetch(:start_on) %>
+              Start
+            <% elsif date == @event.fetch(:end_on) %>
+              End
+            <% elsif date == @event.fetch(:return_on) %>
+              Return
+            <% end %>
+            </p>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

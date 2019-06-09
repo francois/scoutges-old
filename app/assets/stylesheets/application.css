@@ -13,3 +13,45 @@
  *= require_tree .
  *= require_self
  */
+
+.calendar {
+  border-collapse: collapse;
+}
+
+.calendar td {
+
+  background-color: white;
+  border: 1px solid #333;
+  color: #ccc;
+  height: 80px;
+  margin: 0;
+  padding: 4px;
+  text-align: right;
+  vertical-align: top;
+  width: 80px;
+
+}
+
+.calendar .today {
+  background-color: #6c3;
+  color: black;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.calendar .leased {
+  background-color: #ccf;
+  color: black;
+}
+
+.calendar .active {
+  background-color: #99f;
+  color: black;
+}
+
+.calendar td p {
+  color: black;
+  font-weight: bold;
+  text-align: center;
+}
