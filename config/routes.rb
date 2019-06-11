@@ -7,4 +7,6 @@ Rails.application.routes.draw do
   end
 
   resources :registrations, only: %w(new create)
+
+  root to: "home#index"
 end

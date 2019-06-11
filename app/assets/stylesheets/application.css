@@ -50,8 +50,12 @@
   color: black;
 }
 
-.calendar td p {
+.calendar td p, .calendar td li {
   color: black;
   font-weight: bold;
   text-align: center;
+}
+
+.calendar td li {
+  text-align: left;
 }

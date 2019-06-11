@@ -1,0 +1,51 @@
+<h1>Welcome</h1>
+
+<h2>Groups</h2>
+<ul>
+  <% @groups.each do |group| %>
+    <li><%= link_to group.fetch(:name), group_path(group.fetch(:group_slug)) %></li>
+  <% end %>
+</ul>
+
+<table class="calendar">
+  <thead>
+    <th>Sun</th>
+    <th>Mon</th>
+    <th>Tue</th>
+    <th>Wed</th>
+    <th>Thu</th>
+    <th>Fri</th>
+    <th>Sat</th>
+  </thead>
+  <tbody>
+    <% ((Date.current.beginning_of_week - 1) .. (@last_date.beginning_of_week - 1 + 6 + 7)).step(7) do |sunday| %>
+      <tr>
+        <% (sunday .. (sunday + 6)).each do |date| %>
+          <td class="<%= :today if date == Date.current %>">
+            <% if date == (Date.current.beginning_of_week - 1) %>
+              <%= date.strftime("%b %-d, %Y") %>
+            <% elsif date.year != (date - 1).year %>
+              <%= date.strftime("%b %-d, %Y") %>
+            <% elsif date.month != (date - 1).month %>
+              <%= date.strftime("%b %-d") %>
+            <% else %>
+              <%= date.strftime("%-d") %>
+            <% end %>
+            <% if @dates.fetch(date, []).any? %>
+              <ul>
+                <% @dates.fetch(date, []).each do |event| %>
+                  <li>
+                    <%= link_to event.fetch(:event_name),
+                          group_event_path(event.fetch(:group_slug), event.fetch(:event_slug)),
+                          title: [event.fetch(:leaser_name), event.fetch(:group_name)].join(" by ")
+                    %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

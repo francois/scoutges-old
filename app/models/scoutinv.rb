@@ -387,6 +387,56 @@ class Scoutinv
     ds.take(count)
   end
 
+  def find_accessible_groups_of_user(user_slug: nil, email: nil)
+    ds = @groups_ds
+      .join(@memberships_ds.as(:memberships), [:group_slug])
+      .join(@users_ds.as(:users), [:email])
+      .left_join(@events_ds.as(:events), [:group_slug])
+      .left_join(@troops_ds.as(:troops), [:group_slug, :troop_slug])
+      .select(Sequel[:groups][:group_slug], Sequel[:groups][:name].as(:group_name))
+      .select_append(Sequel[:events][:event_slug])
+      .select_append(Sequel[:events][:name].as(:event_name))
+      .select_append(Sequel[:events][:leaser_name])
+      .select_append(Sequel[:events][:leaser_email])
+      .select_append(Sequel[:events][:leaser_phone])
+      .select_append(Sequel[:events][:lease_on])
+      .select_append(Sequel[:events][:start_on])
+      .select_append(Sequel[:events][:end_on])
+      .select_append(Sequel[:events][:return_on])
+      .select_append(Sequel[:troops][:troop_slug])
+      .select_append(Sequel[:troops][:name].as(:troop_name))
+
+    ds = ds.where(user_slug: user_slug) if user_slug
+    ds = ds.where(email: email)         if email
+    result = ds.to_a
+
+    result.each_with_object(Hash.new) do |row, memo|
+      memo[row.fetch(:group_slug)] ||= {
+        name:       row.fetch(:group_name),
+        group_slug: row.fetch(:group_slug),
+        events:     [],
+      }
+
+      if row.fetch(:event_name)
+        memo[row.fetch(:group_slug)][:events] << {
+          event_slug:   row.fetch(:event_slug),
+          name:         row.fetch(:event_name),
+          lease_on:     row.fetch(:lease_on),
+          start_on:     row.fetch(:start_on),
+          end_on:       row.fetch(:end_on),
+          return_on:    row.fetch(:return_on),
+          leaser_name:  row.fetch(:leaser_name),
+          leaser_email: row.fetch(:leaser_email),
+          leaser_phone: row.fetch(:leaser_phone),
+          troop:        {
+            troop_slug: row.fetch(:troop_slug),
+            name:       row.fetch(:troop_name),
+          }
+        }
+      end
+    end.values
+  end
+
   def find_group(slug)
     result = @groups_ds
       .join(@troops_ds.as(:troops), [:group_slug])
