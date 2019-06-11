@@ -1,7 +1,7 @@
 <h1><%= @event.fetch(:name) %></h1>
 
 <h2>Lease To</h2>
-<% if @event.fetch(:troop).any? %>
+<% if @event.include?(:troop) %>
   <h3><%= @event[:troop].fetch(:name) %></h3>
   <ul>
     <% @event.fetch(:members).each do |member| %>

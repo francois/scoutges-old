@@ -439,9 +439,9 @@ class Scoutinv
 
   def find_group(slug)
     result = @groups_ds
-      .join(@troops_ds.as(:troops), [:group_slug])
-      .join(@memberships_ds, [:group_slug])
-      .join(@users_ds.as(:users), [:email])
+      .left_join(@troops_ds.as(:troops), [:group_slug])
+      .left_join(@memberships_ds, [:group_slug])
+      .left_join(@users_ds.as(:users), [:email])
       .left_join(@enrollments_ds.as(:enrollments), [:group_slug, :troop_slug, :email])
       .select(:group_slug, Sequel[:groups][:name].as(:group_name))
       .select_append(:admin_name, :admin_email, :admin_phone)
