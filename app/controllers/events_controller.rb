@@ -4,7 +4,7 @@ require "types"
 class EventsController < ApplicationController
   RegisterEventSchema = Dry::Schema.Params do
     required(:name).filled(Types::StrippedString)
-    required(:description).filled(Types::StrippedString)
+    required(:description).maybe(Types::StrippedString)
     required(:lease_on).filled(:date)
     required(:start_on).filled(:date)
     required(:end_on).filled(:date)
@@ -33,7 +33,7 @@ class EventsController < ApplicationController
       event_slug = DB.transaction do
         if output[:troop_slug]
           scoutinv.register_troop_event(
-            description:  output.fetch(:description),
+            description:  output.fetch(:description) || "",
             end_on:       output.fetch(:end_on),
             group_slug:   @group.fetch(:group_slug),
             lease_on:     output.fetch(:lease_on),
@@ -44,7 +44,7 @@ class EventsController < ApplicationController
           )
         else
           scoutinv.register_external_event(
-            description:  output.fetch(:description),
+            description:  output.fetch(:description) || "",
             end_on:       output.fetch(:end_on),
             group_slug:   @group.fetch(:group_slug),
             lease_on:     output.fetch(:lease_on),
