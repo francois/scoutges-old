@@ -11,8 +11,8 @@ Sequel.migration do
       column :aisle,        :citext
       column :bin,          :citext
 
-      column :internal_unit_price, :decimal, null: false
-      column :external_unit_price, :decimal, null: false
+      column :internal_unit_price, "numeric(9, 2)", null: false
+      column :external_unit_price, "numeric(9, 2)", null: false
 
       column :created_at, :timestamptz, null: false, default: Sequel.function(:now)
       column :updated_at, :timestamptz, null: false, default: Sequel.function(:now)

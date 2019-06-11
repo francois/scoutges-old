@@ -369,8 +369,9 @@ class Scoutinv
       .take(count)
   end
 
-  def find_product_details(product_slug)
+  def find_product(group_slug:, product_slug:)
     find_products_ds
+      .where(group_slug: group_slug)
       .where(product_slug: product_slug)
       .first
   end
@@ -550,7 +551,7 @@ class Scoutinv
 
   def find_products_ds
     @products_ds
-      .left_join(@instances_ds, [:product_slug])
+      .left_join(@instances_ds, [:group_slug, :product_slug])
       .group_by(Sequel[:products][:id], Sequel[:products][:group_slug], Sequel[:products][:product_slug])
       .select_all(:products)
       .select_append{ count(instance_slug).as(:num_instances) }

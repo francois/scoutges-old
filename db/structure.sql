@@ -260,8 +260,8 @@ CREATE TABLE public.products (
     room public.citext,
     aisle public.citext,
     bin public.citext,
-    internal_unit_price numeric NOT NULL,
-    external_unit_price numeric NOT NULL,
+    internal_unit_price numeric(9,2) NOT NULL,
+    external_unit_price numeric(9,2) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT name_is_meaningful CHECK ((length((name)::text) > 0)),
@@ -376,7 +376,8 @@ CREATE TABLE public.users (
     phone public.citext,
     password text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    phone public.citext
 );
 
 

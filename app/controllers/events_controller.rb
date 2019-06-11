@@ -66,6 +66,7 @@ class EventsController < ApplicationController
   end
 
   def show
+    set_group
     @event = Scoutinv.new.find_event(group_slug: params[:group_id], event_slug: params[:id])
     render
   end

@@ -95,7 +95,7 @@ class ScoutinvTest < ActiveSupport::TestCase
     )
 
     @sut.change_product_quantity(group_slug: @group_slug, product_slug: slug, quantity: 4)
-    product = @sut.find_product_details(slug)
+    product = @sut.find_product(group_slug: @group_slug, product_slug: slug)
     refute product.nil?
     assert_equal 4, product.fetch(:num_instances)
   end

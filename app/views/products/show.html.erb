@@ -1,0 +1,4 @@
+<h1><%= @product.fetch(:name) %></h1>
+<%= simple_format @product.fetch(:description) %>
+<p>Location: <%= product_location(@product) %></p>
+<p>Prices: <%= number_to_currency @product.fetch(:internal_unit_price) %> / <%= number_to_currency @product.fetch(:external_unit_price) %></p>
