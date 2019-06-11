@@ -248,7 +248,7 @@ class Scoutinv
         end_on:       end_on,
         event_slug:   event_slug,
         group_slug:   group_slug,
-        lease_on:     leased_on,
+        lease_on:     lease_on,
         leaser_email: leaser_email,
         leaser_name:  leaser_name,
         leaser_phone: leaser_phone,
