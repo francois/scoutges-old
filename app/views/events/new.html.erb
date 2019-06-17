@@ -1,5 +1,5 @@
 <%= form_tag(group_events_path()) do %>
-  <%= render partial: "shared/errors", locals: { errors: @result&.errors } %>
+  <%= render_errors @result&.errors %>
 
   <%= label_tag :event_name, "Name" %><br>
   <%= text_field_tag "event[name]", @event[:name] %><br>

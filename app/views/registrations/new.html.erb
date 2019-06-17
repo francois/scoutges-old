@@ -1,5 +1,5 @@
 <%= form_tag(registrations_path) do %>
-  <%= render "shared/errors", locals: { errors: @result&.errors } %>
+  <%= render_errors @result&.errors %>
 
   <%= label_tag :registration_name, "Group Name" %><br>
   <%= text_field_tag "registration[name]", @registration[:name], placeholder: "10th Group, Fleurimont" %><br>

@@ -1,6 +1,6 @@
 <h1>New Product</h1>
 <%= form_tag(group_products_path(@group.fetch(:group_slug))) do %>
-  <%= render partial: "shared/errors", locals: { errors: @result&.errors } %>
+  <%= render_errors @result&.errors %>
 
   <%= label_tag :product_name, "Name" %><br>
   <%= text_field_tag "product[name]", @product[:name], placeholder: "5x10 tent" %><br>

@@ -4,4 +4,8 @@ module ApplicationHelper
       product[key]
     end.reject(&:blank?).join(" / ")
   end
+
+  def render_errors(errors)
+    render partial: "shared/errors", locals: { errors: errors || {} }
+  end
 end
