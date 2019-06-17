@@ -6,6 +6,7 @@ class HomeController < ApplicationController
       .flatten
       .map{|event| event.fetch(:return_on)}
       .max
+    @last_date = 1.month.from_now.to_date unless @last_date
 
     dates = @groups.map do |group|
       group.fetch(:events).each_with_object(Hash.new) do |event, memo|
@@ -23,15 +24,19 @@ class HomeController < ApplicationController
       end
     end
 
-    min_date, max_date = dates.map(&:keys).flatten.minmax
-    @dates = (min_date .. max_date).map do |date|
-      result = dates
-        .select{|hash| hash.keys.include?(date)}
-        .map{|hash| hash[date]}
-        .flatten
+    if dates.any?
+      min_date, max_date = dates.map(&:keys).flatten.minmax
+      @dates = (min_date .. max_date).map do |date|
+        result = dates
+          .select{|hash| hash.keys.include?(date)}
+          .map{|hash| hash[date]}
+          .flatten
 
-      [date, result]
-    end.to_h
+        [date, result]
+      end.to_h
+    else
+      @dates = Hash.new
+    end
 
     render
   end
