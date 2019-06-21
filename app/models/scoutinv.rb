@@ -100,6 +100,14 @@ class Scoutinv
     nil
   end
 
+  def detach_user_from_troop(email:, group_slug:, troop_slug:)
+    @enrollments_ds.where(
+      email:      email,
+      group_slug: group_slug,
+      troop_slug: troop_slug,
+    ).delete
+  end
+
   # @param images [Array<#read>] An array of readable objects that are images
   #     that will be associated with this product.
   #

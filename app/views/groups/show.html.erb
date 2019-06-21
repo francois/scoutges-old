@@ -25,6 +25,7 @@
       <th>Name</th>
       <th>Email</th>
       <th>Phone</th>
+      <th></th>
     </thead>
     <tbody>
       <% troop[:members].each do |member| %>
@@ -32,6 +33,13 @@
           <td><%= member[:name] %></td>
           <td><%= mail_to member[:email], member[:email] %></td>
           <td><%= link_to member[:phone], "tel:+1#{member[:phone].gsub(/[^\d]/, "").sub(/\A\+?1/, "")}" if member[:phone] %></td>
+          <td>
+            <%= form_tag group_enrollment_path(@group[:group_slug]), method: :delete do %>
+              <%= hidden_field_tag "enrollment[email]", member[:email] %>
+              <%= hidden_field_tag "enrollment[troop_slug]", troop[:troop_slug] %>
+              <%= button_tag "X" %>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
