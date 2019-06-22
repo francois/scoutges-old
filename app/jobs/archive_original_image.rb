@@ -5,11 +5,11 @@ class ArchiveOriginalImage < Que::Job
     storage = DatabaseBlobStorage.new
 
     service = S3::Service.new(
-      access_key_id:     Rails.application.credentials.dig(:aws, :access_key_id),
-      secret_access_key: Rails.application.credentials.dig(:aws, :secret_access_key),
+      access_key_id:     Rails.application.credentials.dig(Rails.env.to_sym, :aws, :access_key_id),
+      secret_access_key: Rails.application.credentials.dig(Rails.env.to_sym, :aws, :secret_access_key),
     )
 
-    bucket = service.bucket(ENV.fetch("AWS_BUCKET"))
+    bucket = service.bucket(Rails.application.credentials.dig(Rails.env.to_sym, :aws, :bucket))
 
     DB.transaction do
       data, content_type = storage.data_of(blob_slug)
