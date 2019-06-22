@@ -8,6 +8,8 @@ class BlobsController < ApplicationController
     data, content_type = DatabaseBlobStorage.new
       .data_of(params[:id], variant: variant, fallback: fallback)
 
+    expires_in 15.minutes, public: true
+
     if data
       send_data data, type: content_type, disposition: "inline"
     else
