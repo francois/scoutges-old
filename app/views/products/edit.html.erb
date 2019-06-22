@@ -1,0 +1,6 @@
+<h1>Edit Product</h1>
+<%= form_tag(group_product_path(@group.fetch(:group_slug), @product.fetch(:product_slug)), method: :put, multipart: true) do %>
+  <div>
+    <%= render partial: "form" %>
+  </div>
+<% end %>

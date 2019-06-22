@@ -147,33 +147,33 @@ class Scoutinv
   #
   # @note It is not an error, but doesn't make sense, to attempt to update a slug
   #     that doesn't actually exist.
-  def change_product_details(
-    product_slug:,
-
-    name:,
-    description:,
-
-    internal_unit_price:,
-    external_unit_price:,
-
-    building:,
-    room:,
-    aisle:,
-    bin:
-  )
-    ds = @products_ds.where(product_slug: product_slug)
-    ds.update(
+  def change_product_details(group_slug:, product_slug:,
+                             name:, description:,
+                             internal_unit_price:, external_unit_price:,
+                             building:, room:, aisle:, bin:,
+                             images:)
+    updated_attrs = {
       aisle:                aisle,
       bin:                  bin,
       building:             building,
       description:          description,
       external_unit_price:  external_unit_price,
+      group_slug:           group_slug,
       internal_unit_price:  internal_unit_price,
       name:                 name,
       product_slug:         product_slug,
       room:                 room,
-      updated_at:           Time.now.utc,
-    )
+    }
+
+    @products_ds
+      .where(group_slug: group_slug, product_slug: product_slug)
+      .update(updated_attrs)
+
+    blob_slugs = images.map do |file|
+      [group_slug, product_slug, blob_storage.import(file)]
+    end
+
+    @product_images_ds.import([:group_slug, :product_slug, :blob_slug], blob_slugs) if blob_slugs.any?
   end
 
   # Indicates the total number of instances of this product available
@@ -367,6 +367,7 @@ class Scoutinv
   def find_products(search_string, count: 25, before: nil, after: nil)
     find_products_ds
       .take(count)
+      .map{|product| product.merge(blob_slugs: product.fetch(:blob_slugs, []).compact)}
   end
 
   def find_product(group_slug:, product_slug:)
@@ -374,6 +375,7 @@ class Scoutinv
       .where(group_slug: group_slug)
       .where(product_slug: product_slug)
       .first
+      .yield_self{|product| product.merge(blob_slugs: product.fetch(:blob_slugs, []).compact)}
   end
 
   # @param after [NilClass | Date] Finds events that start on or after this date.
