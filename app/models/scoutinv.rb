@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Scoutinv
+  NotEnoughUnusedInstances = Class.new(RuntimeError)
 
   def initialize(
     blob_storage:       DatabaseBlobStorage.new,
@@ -197,11 +198,14 @@ class Scoutinv
   #
   # @return [Array<String>] Returns the serial numbers of every instance.
   def change_product_quantity(group_slug:, product_slug:, quantity:)
-    quantity.times.map{ generate_slug }.tap do |slugs|
-      @instances_ds.import(
-        [:group_slug, :product_slug, :instance_slug, :state],
-        slugs.map{|slug| [group_slug, product_slug, slug, "available"]}
-      )
+    existing = @instances_ds.where(group_slug: group_slug, product_slug: product_slug).count
+
+    if quantity == existing
+      # NOP
+    elsif quantity > existing
+      add_instances(group_slug, product_slug, quantity - existing)
+    else
+      remove_unused_instances(group_slug, product_slug, existing - quantity)
     end
   end
 
@@ -564,5 +568,31 @@ class Scoutinv
       .select_all(:products)
       .select_append{ count(instance_slug).as(:num_instances) }
       .select_append(Sequel.function(:array_agg, Sequel[:product_images][:blob_slug]).as(:blob_slugs))
+  end
+
+  def add_instances(group_slug, product_slug, quantity)
+    quantity.times.map{ generate_slug }.tap do |slugs|
+      @instances_ds.import(
+        [:group_slug, :product_slug, :instance_slug, :state],
+        slugs.map{|slug| [group_slug, product_slug, slug, "available"]}
+      )
+    end
+  end
+
+  def remove_unused_instances(group_slug, product_slug, quantity)
+    unused_instance_ids = @instances_ds
+      .left_join(@reservations_ds.as(:reservations), [:group_slug, :instance_slug])
+      .where(Sequel[:reservations][:id] => nil)
+      .select_map(Sequel[:instances][:id])
+
+    byebug
+    if unused_instance_ids.length < quantity
+      raise NotEnoughUnusedInstances,
+        "Cannot remove #{quantity} instances of #{product_slug.inspect}: only found #{unused_instance_ids.length} unused instances"
+    end
+
+    @instances_ds
+      .where(id: unused_instance_ids.first(quantity))
+      .delete
   end
 end

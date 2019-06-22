@@ -24,6 +24,9 @@
 <%= label_tag :product_bin, "Bin" %><br>
 <%= text_field_tag "product[bin]", @product[:bin], placeholder: "N8" %><br>
 
+<%= label_tag :product_quantity, "Num instances" %><br>
+<%= number_field_tag "product[quantity]", @product[:quantity] %><br>
+
 <%= label_tag :product_image_url, "Image URL" %><br>
 <%= text_field_tag "product[image_url]", @product[:image_url] %><br>
 

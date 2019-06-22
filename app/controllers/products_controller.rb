@@ -13,6 +13,7 @@ class ProductsController < ApplicationController
     required(:room).maybe(Types::StrippedString)
     required(:aisle).maybe(Types::StrippedString)
     required(:bin).maybe(Types::StrippedString)
+    required(:quantity).filled(:integer)
     required(:image_url).maybe(Types::StrippedString)
   end
 
@@ -25,6 +26,7 @@ class ProductsController < ApplicationController
     required(:room).maybe(Types::StrippedString)
     required(:aisle).maybe(Types::StrippedString)
     required(:bin).maybe(Types::StrippedString)
+    required(:quantity).filled(:integer)
     required(:image_url).maybe(Types::StrippedString)
   end
 
@@ -84,6 +86,12 @@ class ProductsController < ApplicationController
             name:                 output.fetch(:name),
             room:                 output.fetch(:room),
           ).tap do |product_slug|
+            scoutinv.change_product_quantity(
+              group_slug: @group.fetch(:group_slug),
+              product_slug: product_slug,
+              quantity: output.fetch(:quantity),
+            )
+
             product = scoutinv.find_product(group_slug: @group.fetch(:group_slug), product_slug: product_slug)
             product.fetch(:blob_slugs).each do |blob_slug|
               Rails.logger.info "Enqueuing create-image-variants job for #{blob_slug.inspect}"
@@ -147,6 +155,13 @@ class ProductsController < ApplicationController
           product_slug:         params[:id],
           room:                 output.fetch(:room),
         )
+
+        scoutinv.change_product_quantity(
+          group_slug: @group.fetch(:group_slug),
+          product_slug: params[:id],
+          quantity: output.fetch(:quantity),
+        )
+
 
         product = scoutinv.find_product(group_slug: @group.fetch(:group_slug), product_slug: params[:id])
         product.fetch(:blob_slugs).each do |blob_slug|

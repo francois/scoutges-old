@@ -98,6 +98,14 @@ class ScoutinvTest < ActiveSupport::TestCase
     product = @sut.find_product(group_slug: @group_slug, product_slug: slug)
     refute product.nil?
     assert_equal 4, product.fetch(:num_instances)
+
+    @sut.change_product_quantity(group_slug: @group_slug, product_slug: slug, quantity: 5)
+    product = @sut.find_product(group_slug: @group_slug, product_slug: slug)
+    assert_equal 5, product.fetch(:num_instances)
+
+    @sut.change_product_quantity(group_slug: @group_slug, product_slug: slug, quantity: 3)
+    product = @sut.find_product(group_slug: @group_slug, product_slug: slug)
+    assert_equal 3, product.fetch(:num_instances)
   end
 
   test "registers an internal event" do
