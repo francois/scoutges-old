@@ -30,6 +30,7 @@ class CreateImageVariants < Que::Job
         end
       end
 
+      Rails.logger.info "Scheduling ArchiveOriginalImage for #{blob_slug.inspect}"
       ArchiveOriginalImage.enqueue(blob_slug)
       destroy
     end
