@@ -176,6 +176,10 @@ class Scoutinv
     @product_images_ds.import([:group_slug, :product_slug, :blob_slug], blob_slugs) if blob_slugs.any?
   end
 
+  def remove_product(group_slug, product_slug)
+    @products_ds.where(group_slug: group_slug, product_slug: product_slug).delete
+  end
+
   # Indicates the total number of instances of this product available
   # for rental.
   #

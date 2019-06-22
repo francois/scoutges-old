@@ -11,3 +11,4 @@
 
 <%= link_to "Edit", edit_group_product_path(@product.fetch(:group_slug), @product.fetch(:product_slug)) %>
 <%= link_to "Back to list", group_products_path(@product.fetch(:group_slug)) %>
+<%= button_to "Destroy", group_product_path(@product.fetch(:group_slug), @product.fetch(:product_slug)), method: :delete %>

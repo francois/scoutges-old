@@ -172,6 +172,11 @@ class ProductsController < ApplicationController
     end
   end
 
+  def destroy
+    Scoutinv.new.remove_product(params[:group_id], params[:id])
+    redirect_to group_products_path(params[:group_id])
+  end
+
   private
 
   def set_group
