@@ -10,3 +10,4 @@
 <p>Prices: <%= number_to_currency @product.fetch(:internal_unit_price) %> / <%= number_to_currency @product.fetch(:external_unit_price) %></p>
 
 <%= link_to "Edit", edit_group_product_path(@product.fetch(:group_slug), @product.fetch(:product_slug)) %>
+<%= link_to "Back to list", group_products_path(@product.fetch(:group_slug)) %>

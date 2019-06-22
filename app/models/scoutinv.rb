@@ -556,6 +556,7 @@ class Scoutinv
       .left_join(@instances_ds.as(:instances), [:group_slug, :product_slug])
       .left_join(@product_images_ds.as(:product_images), [:group_slug, :product_slug])
       .group_by(Sequel[:products][:id], Sequel[:products][:group_slug], Sequel[:products][:product_slug])
+      .order_by(Sequel.function(:unaccent, Sequel[:products][:name]))
       .select_all(:products)
       .select_append{ count(instance_slug).as(:num_instances) }
       .select_append(Sequel.function(:array_agg, Sequel[:product_images][:blob_slug]).as(:blob_slugs))

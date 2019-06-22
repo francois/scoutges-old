@@ -28,6 +28,28 @@ class ProductsController < ApplicationController
     required(:image_url).maybe(Types::StrippedString)
   end
 
+  def index
+    set_group
+    @products = Scoutinv.new.find_products(group_slug: @group.fetch(:group_slug))
+    @products = @products.map do |product|
+      product[:image_paths] = product.fetch(:blob_slugs).map do |blob_slug|
+        blob_path(blob_slug, format: "jpg", variant: "small", fallback: true)
+      end
+
+      product
+    end
+    render
+  end
+
+  def show
+    @product = Scoutinv.new.find_product(group_slug: params[:group_id], product_slug: params[:id])
+    @product[:image_paths] = @product.fetch(:blob_slugs).map do |blob_slug|
+      blob_path(blob_slug, format: "jpg", variant: "medium", fallback: true)
+    end
+
+    render
+  end
+
   def new
     set_group
     @product = Hash.new
@@ -148,15 +170,6 @@ class ProductsController < ApplicationController
         .slice(:name, :description, :internal_unit_price, :external_unit_price, :building, :room, :aisle, :bin, :image_url)
       render action: :edit
     end
-  end
-
-  def show
-    @product = Scoutinv.new.find_product(group_slug: params[:group_id], product_slug: params[:id])
-    @product[:image_paths] = @product.fetch(:blob_slugs).map do |blob_slug|
-      blob_path(blob_slug, format: "jpg", variant: "medium", fallback: true)
-    end
-
-    render
   end
 
   private

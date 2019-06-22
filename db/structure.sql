@@ -30,6 +30,20 @@ COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings
 
 
 --
+-- Name: unaccent; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION unaccent; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
+
+
+--
 -- Name: que_validate_tags(jsonb); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -782,6 +796,8 @@ ALTER TABLE ONLY public.blobs
 ALTER TABLE ONLY public.blobs
     ADD CONSTRAINT blobs_pkey PRIMARY KEY (blob_slug, variant);
 
+ALTER TABLE public.blobs CLUSTER ON blobs_pkey;
+
 
 --
 -- Name: enrollments enrollments_id_key; Type: CONSTRAINT; Schema: public; Owner: -
@@ -1172,3 +1188,4 @@ INSERT INTO "schema_migrations" ("filename") VALUES ('20190605030856_create_memb
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190608132556_create_enrollments.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190621231945_create_queue_schema.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622022529_create_product_images.rb');
+INSERT INTO "schema_migrations" ("filename") VALUES ('20190622154811_create_unaccent_extension.rb');
