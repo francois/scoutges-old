@@ -1097,6 +1097,8 @@ ALTER TABLE ONLY public.variants
 ALTER TABLE ONLY public.variants
     ADD CONSTRAINT variants_pkey PRIMARY KEY (blob_slug, variant);
 
+ALTER TABLE public.variants CLUSTER ON variants_pkey;
+
 
 --
 -- Name: que_jobs_args_gin_idx; Type: INDEX; Schema: public; Owner: -
@@ -1249,3 +1251,4 @@ INSERT INTO "schema_migrations" ("filename") VALUES ('20190621231945_create_queu
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622022529_create_product_images.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622154811_create_unaccent_extension.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622192227_create_variants.rb');
+INSERT INTO "schema_migrations" ("filename") VALUES ('20190622202937_clusterify_variants.rb');
