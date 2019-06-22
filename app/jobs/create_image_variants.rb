@@ -30,6 +30,7 @@ class CreateImageVariants < Que::Job
         end
       end
 
+      ArchiveOriginalImage.enqueue(blob_slug)
       destroy
     end
   end

@@ -16,6 +16,7 @@ gem "pg"
 gem "puma", "~> 3.11"
 gem "que", "~> 1.0.0.beta3"
 gem "rails", "~> 5.2.3"
+gem "s3"
 gem "sequel"
 gem "sequel-rails"
 gem "sequel_pg", require: false

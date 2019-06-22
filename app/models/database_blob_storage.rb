@@ -28,8 +28,10 @@ class DatabaseBlobStorage
     end
   end
 
-  def delete(blob_slug)
-    @blobs.where(blob_slug: blob_slug).delete
+  def delete(blob_slug, variant: nil)
+    ds = @blobs.where(blob_slug: blob_slug)
+    ds = ds.where(variant: variant) if variant
+    ds.delete
   end
 
   def data_of(slug, variant: "original", fallback: false)
