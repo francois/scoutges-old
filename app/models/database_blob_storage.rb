@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class DatabaseBlobStorage
-  def initialize(blobs = DB[:blobs])
-    @blobs = blobs
+  def initialize(blobs = DB[:blobs], variants = DB[:variants])
+    @blobs    = blobs
+    @variants = variants
   end
 
   def import(file, parent_slug: nil, content_type: nil, variant: "original", overwrite: false)
@@ -18,10 +19,18 @@ class DatabaseBlobStorage
           end
       end
 
-      @blobs.where(blob_slug: slug, variant: variant).delete if overwrite
-      @blobs.insert(
+      @variants.where(blob_slug: slug, variant: variant).delete if overwrite
+      if @blobs.select(:blob_slug).first(blob_slug: slug).blank?
+        # Insert blob because it is missing
+        @blobs.insert(
+          blob_slug:    slug,
+          content_type: content_type,
+        )
+      end
+
+      # In all cases, insert the variant
+      @variants.insert(
         blob_slug:    slug,
-        content_type: content_type,
         data:         Sequel.blob(file.read),
         variant:      variant,
       )
@@ -29,13 +38,16 @@ class DatabaseBlobStorage
   end
 
   def delete(blob_slug, variant: nil)
-    ds = @blobs.where(blob_slug: blob_slug)
-    ds = ds.where(variant: variant) if variant
-    ds.delete
+    if variant.nil?
+      @blobs.where(blob_slug: blob_slug).delete
+    else
+      @variants.where(blob_slug: blob_slug, variant: variant).delete
+    end
   end
 
   def data_of(slug, variant: "original", fallback: false)
     row = @blobs
+      .join(@variants, [:blob_slug])
       .select(:data, :content_type)
       .first(blob_slug: slug, variant: variant)
 
@@ -43,6 +55,7 @@ class DatabaseBlobStorage
 
     if fallback
       row = @blobs
+        .join(@variants, [:blob_slug])
         .select(:data, :content_type)
         .first(blob_slug: slug, variant: "original")
       [row.fetch(:data), row.fetch(:content_type)] if row

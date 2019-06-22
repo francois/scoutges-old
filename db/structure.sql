@@ -256,9 +256,7 @@ $$;
 CREATE TABLE public.blobs (
     id bigint NOT NULL,
     blob_slug text NOT NULL,
-    variant text NOT NULL,
     content_type text NOT NULL,
-    data bytea NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -471,7 +469,6 @@ CREATE TABLE public.product_images (
     group_slug text NOT NULL,
     product_slug text NOT NULL,
     blob_slug text NOT NULL,
-    variant text DEFAULT 'original'::text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -698,6 +695,39 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: variants; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.variants (
+    id bigint NOT NULL,
+    blob_slug text NOT NULL,
+    variant text NOT NULL,
+    data bytea NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: variants_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.variants_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: variants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.variants_id_seq OWNED BY public.variants.id;
+
+
+--
 -- Name: blobs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -782,6 +812,13 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
+-- Name: variants id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.variants ALTER COLUMN id SET DEFAULT nextval('public.variants_id_seq'::regclass);
+
+
+--
 -- Name: blobs blobs_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -794,9 +831,7 @@ ALTER TABLE ONLY public.blobs
 --
 
 ALTER TABLE ONLY public.blobs
-    ADD CONSTRAINT blobs_pkey PRIMARY KEY (blob_slug, variant);
-
-ALTER TABLE public.blobs CLUSTER ON blobs_pkey;
+    ADD CONSTRAINT blobs_pkey PRIMARY KEY (blob_slug);
 
 
 --
@@ -1048,6 +1083,22 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: variants variants_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.variants
+    ADD CONSTRAINT variants_id_key UNIQUE (id);
+
+
+--
+-- Name: variants variants_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.variants
+    ADD CONSTRAINT variants_pkey PRIMARY KEY (blob_slug, variant);
+
+
+--
 -- Name: que_jobs_args_gin_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1135,7 +1186,7 @@ ALTER TABLE ONLY public.memberships
 --
 
 ALTER TABLE ONLY public.product_images
-    ADD CONSTRAINT product_images_blob_slug_fkey FOREIGN KEY (blob_slug, variant) REFERENCES public.blobs(blob_slug, variant) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT product_images_blob_slug_fkey FOREIGN KEY (blob_slug) REFERENCES public.blobs(blob_slug) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -1171,6 +1222,14 @@ ALTER TABLE ONLY public.reservations
 
 
 --
+-- Name: variants variants_blob_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.variants
+    ADD CONSTRAINT variants_blob_slug_fkey FOREIGN KEY (blob_slug) REFERENCES public.blobs(blob_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -1189,3 +1248,4 @@ INSERT INTO "schema_migrations" ("filename") VALUES ('20190608132556_create_enro
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190621231945_create_queue_schema.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622022529_create_product_images.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622154811_create_unaccent_extension.rb');
+INSERT INTO "schema_migrations" ("filename") VALUES ('20190622192227_create_variants.rb');
