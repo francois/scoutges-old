@@ -87,6 +87,7 @@ GEM
       dry-inflector (~> 0.1, >= 0.1.2)
       dry-logic (~> 1.0)
     erubi (1.8.0)
+    escape (0.0.4)
     ffi (1.11.1)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
@@ -116,6 +117,7 @@ GEM
       mini_portile2 (~> 2.4.0)
     pg (1.1.4)
     puma (3.12.1)
+    que (1.0.0.beta3)
     rack (2.0.7)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -191,10 +193,12 @@ DEPENDENCIES
   database_cleaner
   dotenv-rails
   dry-schema
+  escape
   jbuilder (~> 2.5)
   listen (>= 3.0.5, < 3.2)
   pg
   puma (~> 3.11)
+  que (~> 1.0.0.beta3)
   rails (~> 5.2.3)
   sequel
   sequel-rails

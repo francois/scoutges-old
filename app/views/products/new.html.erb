@@ -1,5 +1,5 @@
 <h1>New Product</h1>
-<%= form_tag(group_products_path(@group.fetch(:group_slug))) do %>
+<%= form_tag(group_products_path(@group.fetch(:group_slug)), multipart: true) do %>
   <%= render_errors @result&.errors %>
 
   <%= label_tag :product_name, "Name" %><br>
@@ -25,6 +25,12 @@
 
   <%= label_tag :product_bin, "Bin" %><br>
   <%= text_field_tag "product[bin]", @product[:bin], placeholder: "N8" %><br>
+
+  <%= label_tag :product_image_url, "Image URL" %><br>
+  <%= text_field_tag "product[image_url]", @product[:image_url] %><br>
+
+  <%= label_tag :product_image, "Image" %><br>
+  <%= file_field_tag "product[image]" %><br>
 
   <%= submit_tag "Save" %>
 <% end %>

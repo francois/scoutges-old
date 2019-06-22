@@ -9,5 +9,7 @@ Rails.application.routes.draw do
 
   resources :registrations, only: %w(new create)
 
+  resources :blobs, only: %w(show destroy)
+
   root to: "home#index"
 end

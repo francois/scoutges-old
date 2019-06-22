@@ -3,7 +3,7 @@
 class Scoutinv
 
   def initialize(
-    blob_storage:       BlobStorage.new,
+    blob_storage:       DatabaseBlobStorage.new,
     enrollments_ds:     DB[:enrollments],
     events_ds:          DB[:events],
     groups_ds:          DB[:groups],
@@ -134,10 +134,10 @@ class Scoutinv
       )
 
       blob_slugs = images.map do |file|
-        blob_storage.import(file, content_type: "image/jpeg")
+        [group_slug, product_slug, blob_storage.import(file)]
       end
 
-      @product_images_ds.import([:product_slug, :blob_slug], blob_slugs) if blob_slugs.any?
+      @product_images_ds.import([:group_slug, :product_slug, :blob_slug], blob_slugs) if blob_slugs.any?
     end
   end
 
@@ -551,9 +551,11 @@ class Scoutinv
 
   def find_products_ds
     @products_ds
-      .left_join(@instances_ds, [:group_slug, :product_slug])
+      .left_join(@instances_ds.as(:instances), [:group_slug, :product_slug])
+      .left_join(@product_images_ds.as(:product_images), [:group_slug, :product_slug])
       .group_by(Sequel[:products][:id], Sequel[:products][:group_slug], Sequel[:products][:product_slug])
       .select_all(:products)
       .select_append{ count(instance_slug).as(:num_instances) }
+      .select_append(Sequel.function(:array_agg, Sequel[:product_images][:blob_slug]).as(:blob_slugs))
   end
 end
