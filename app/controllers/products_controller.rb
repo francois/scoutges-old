@@ -114,6 +114,7 @@ class ProductsController < ApplicationController
     else
       @product = params[:product]
         .slice(:name, :description, :internal_unit_price, :external_unit_price, :building, :room, :aisle, :bin, :image_url)
+        .merge(group_slug: @gropu.fetch(:group_slug))
       render action: :new
     end
   end
@@ -183,6 +184,7 @@ class ProductsController < ApplicationController
     else
       @product = params[:product]
         .slice(:name, :description, :internal_unit_price, :external_unit_price, :building, :room, :aisle, :bin, :image_url)
+        .merge(group_slug: params[:group_id], product_slug: params[:id])
       render action: :edit
     end
   end
