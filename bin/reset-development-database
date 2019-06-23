@@ -1,0 +1,11 @@
+#!/bin/sh
+set +eu
+
+dropdb scoutges_development
+createdb scoutges_development
+
+dropdb scoutges_test
+createdb scoutges_test
+
+bin/rails db:migrate
+bin/rails db:migrate RAILS_ENV=test
