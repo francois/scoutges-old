@@ -190,7 +190,13 @@ class ProductsController < ApplicationController
   end
 
   def destroy
-    Scoutinv.new.remove_product(params[:group_id], params[:id])
+    scoutinv = Scoutinv.new
+    DB.transaction do
+      product = scoutinv.find_product(group_slug: params[:group_id], product_slug: params[:id])
+      scoutinv.remove_product(group_slug: product.fetch(:group_slug), product_slug: product.fetch(:product_slug))
+      RemoveOrphanedBlobsJob.enqueue(product.fetch(:blob_slugs)) if product.fetch(:blob_slugs).any?
+    end
+
     redirect_to group_products_path(params[:group_id])
   end
 

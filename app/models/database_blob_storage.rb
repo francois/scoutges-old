@@ -37,11 +37,11 @@ class DatabaseBlobStorage
     end
   end
 
-  def delete(blob_slug, variant: nil)
+  def delete(blob_slug_or_slugs, variant: nil)
     if variant.nil?
-      @blobs.where(blob_slug: blob_slug).delete
+      @blobs.where(blob_slug: blob_slug_or_slugs).delete
     else
-      @variants.where(blob_slug: blob_slug, variant: variant).delete
+      @variants.where(blob_slug: blob_slug_or_slugs, variant: variant).delete
     end
   end
 
