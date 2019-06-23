@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ArchiveOriginalImage < Que::Job
+class ArchiveOriginalImageJob < Que::Job
   def run(blob_slug)
     storage = DatabaseBlobStorage.new
 

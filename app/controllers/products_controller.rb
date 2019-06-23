@@ -95,7 +95,7 @@ class ProductsController < ApplicationController
             product = scoutinv.find_product(group_slug: @group.fetch(:group_slug), product_slug: product_slug)
             product.fetch(:blob_slugs).each do |blob_slug|
               Rails.logger.info "Enqueuing create-image-variants job for #{blob_slug.inspect}"
-              CreateImageVariants.enqueue(blob_slug)
+              CreateImageVariantsJob.enqueue(blob_slug)
             end
           end
         end
@@ -167,7 +167,7 @@ class ProductsController < ApplicationController
         product = scoutinv.find_product(group_slug: @group.fetch(:group_slug), product_slug: params[:id])
         product.fetch(:blob_slugs).each do |blob_slug|
           Rails.logger.info "Enqueuing create-image-variants job for #{blob_slug.inspect}"
-          CreateImageVariants.enqueue(blob_slug)
+          CreateImageVariantsJob.enqueue(blob_slug)
         end
       ensure
         # Make sure we don't keep open files around

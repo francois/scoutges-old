@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-class ClusterDatabase < Que::Job
+class ClusterDatabaseJob < Que::Job
   def run
     DB.execute "CLUSTER"
     DB.transaction do
-      ClusterDatabase.enqueue(run_at: 1.day.from_now)
+      ClusterDatabaseJob.enqueue(run_at: 1.day.from_now)
       destroy
     end
   end

@@ -1,4 +1,6 @@
-class CreateImageVariants < Que::Job
+# frozen_string_literal: true
+
+class CreateImageVariantsJob < Que::Job
   def run(blob_slug)
     blob_storage = DatabaseBlobStorage.new
 
@@ -30,8 +32,8 @@ class CreateImageVariants < Que::Job
         end
       end
 
-      Rails.logger.info "Scheduling ArchiveOriginalImage for #{blob_slug.inspect}"
-      ArchiveOriginalImage.enqueue(blob_slug)
+      Rails.logger.info "Scheduling ArchiveOriginalImageJob for #{blob_slug.inspect}"
+      ArchiveOriginalImageJob.enqueue(blob_slug)
       destroy
     end
   end
