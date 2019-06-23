@@ -54,7 +54,7 @@ class ProductsController < ApplicationController
 
   def new
     set_group
-    @product = Hash.new
+    @product = {quantity: 1}
     render
   end
 
