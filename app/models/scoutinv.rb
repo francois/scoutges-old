@@ -379,11 +379,16 @@ class Scoutinv
   end
 
   def find_product(group_slug:, product_slug:)
+    # #first may return nil in case there doesn't exist a product with the given primary key
+    # In that case, the call to #yield_self would pass nil, which would blow up the call
+    # to #merge. To combat this, we instead guard the call to #merge with a presence check.
+    # This prevents a NoMethodError which is exactly what we want (due to the short-circuiting
+    # behaviour of &&).
     find_products_ds
       .where(group_slug: group_slug)
       .where(product_slug: product_slug)
       .first
-      .yield_self{|product| product.merge(blob_slugs: product.fetch(:blob_slugs, []).compact)}
+      .yield_self{|product| product && product.merge(blob_slugs: product.fetch(:blob_slugs, []).compact)}
   end
 
   # @param after [NilClass | Date] Finds events that start on or after this date.
