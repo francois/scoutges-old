@@ -40,6 +40,8 @@ existed at that time were flagged as "completed". Future functions will receive 
 * [ ] Change instance state from product details page
 * [ ] Add product to categories
 * [ ] Remove product from categories
+* [x] List product catalog _2019-07-02_
+* [ ] Filter product catalog
 
 ## Events
 
