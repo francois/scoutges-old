@@ -52,6 +52,7 @@ class ScoutinvTest < ActiveSupport::TestCase
     )
 
     @sut.change_product_details(
+      group_slug: @group_slug,
       product_slug: slug,
 
       name: "Tente 4x10",
@@ -62,6 +63,8 @@ class ScoutinvTest < ActiveSupport::TestCase
       room: "17",
       aisle: "13",
       bin: "bleu",
+
+      images: []
     )
 
     products = @sut.find_products(nil)
@@ -122,7 +125,7 @@ class ScoutinvTest < ActiveSupport::TestCase
       return_on: Date.new(2019, 9, 7),
     )
 
-    events = @sut.find_events
+    events = @sut.find_events(group_slug: @group_slug)
     assert_equal 1, events.size
     event = events.first
     assert_equal @group_slug, event.fetch(:group_slug)

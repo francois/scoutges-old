@@ -18,6 +18,12 @@ class EventsController < ApplicationController
     required(:leaser_email).maybe(Types::StrippedString, format?: /\A[^@]+@.+[.][a-z]{2,}\z/i)
   end
 
+  def index
+    set_group
+    @events = Scoutinv.new.find_events(group_slug: @group.fetch(:group_slug), after: 14.days.ago)
+    render
+  end
+
   def new
     set_group
     @event = Hash.new

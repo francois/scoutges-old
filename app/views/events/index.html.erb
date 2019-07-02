@@ -1,0 +1,38 @@
+<h1>Events</h1>
+
+<table>
+  <col width="30%"/>
+  <col width="30%"/>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Leaser</th>
+      <th>Lease on</th>
+      <th>Start on</th>
+      <th>End on</th>
+      <th>Return on</th>
+      <th>Duration</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @events.each do |event| %>
+      <tr>
+        <td><%= link_to event.fetch(:name), group_event_path(event.fetch(:group_slug), event.fetch(:event_slug)) %></td>
+        <td>
+          <% if event.fetch(:leaser_name).blank? %>
+            <%= event.fetch(:troop_name) %>
+          <% else %>
+            <%= event.fetch(:leaser_name) %>
+          <% end %>
+        </td>
+        <td><%= event.fetch(:lease_on).iso8601 %></td>
+        <td><%= event.fetch(:start_on).iso8601 %></td>
+        <td><%= event.fetch(:end_on).iso8601 %></td>
+        <td><%= event.fetch(:return_on).iso8601 %></td>
+        <td><%= distance_of_time_in_words(event.fetch(:return_on) + 1, event.fetch(:lease_on)) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "Register event", new_group_event_path(@group.fetch(:group_slug)) %>

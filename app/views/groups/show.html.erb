@@ -76,5 +76,5 @@
   <%= submit_tag "Add Member to Troop" %>
 <% end %>
 
-<%= link_to "Register event", new_group_event_path(@group.fetch(:group_slug)) %>
+<%= link_to "Events", group_events_path(@group.fetch(:group_slug)) %>
 <%= link_to "Products", group_products_path(@group.fetch(:group_slug)) %>

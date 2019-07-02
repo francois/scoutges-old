@@ -47,7 +47,7 @@ existed at that time were flagged as "completed". Future functions will receive 
 
 * [x] Register internal event _2019-07-02_
 * [x] Register external event _2019-07-02_
-* [ ] List upcoming group events
+* [x] List upcoming group events
 * [ ] List past group events
 * [ ] Edit event details
 * [x] Show event details _2019-07-02_
