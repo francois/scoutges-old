@@ -157,7 +157,7 @@ GEM
     s3 (0.3.28)
       addressable
       proxies
-    sequel (5.21.0)
+    sequel (5.22.0)
     sequel-rails (1.0.1)
       actionpack (>= 4.0.0)
       activemodel (>= 4.0.0)
