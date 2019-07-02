@@ -38,14 +38,18 @@ existed at that time were flagged as "completed". Future functions will receive 
 * [x] Remove product _2019-07-02_
 * [x] View reservations on product details page _2019-07-02_
 * [ ] Change instance state from product details page
+* [ ] Add product to categories
+* [ ] Remove product from categories
 
 ## Events
 
 * [x] Register internal event _2019-07-02_
 * [x] Register external event _2019-07-02_
+* [ ] List upcoming group events
+* [ ] List past group events
 * [ ] Edit event details
-* [ ] Show event details
-* [ ] Show event reservations
+* [x] Show event details _2019-07-02_
+* [x] Show event reservations _2019-07-02_
 * [ ] Reserve product from catalog page
 * [ ] Change product reserved quantity from event details page
 * [ ] Print internal invoice

@@ -49,6 +49,9 @@
             <p>
             <% if date == Date.current %>
               Today
+              <% if date < @event.fetch(:lease_on) %>
+                <br><span><%= number_with_delimiter((@event.fetch(:lease_on) - date).to_i) %> days left</span>
+              <% end %>
             <% elsif date == @event.fetch(:lease_on) %>
               Pick up
             <% elsif date == @event.fetch(:start_on) %>
@@ -65,3 +68,16 @@
     <% end %>
   </tbody>
 </table>
+
+<h2>Reservations</h2>
+<ul>
+<% @reservations.each do |reservation| %>
+  <li>
+    <%= image_tag reservation.fetch(:image_paths).first, alt: "", width: 250 if reservation.fetch(:image_paths).any? %>
+    <p><%= link_to reservation.fetch(:product_name), group_product_path(reservation.fetch(:group_slug), reservation.fetch(:product_slug)) %></p>
+    <% if reservation.fetch(:num_instances) > 1 %>
+      <p>Quantity: <%= number_with_delimiter reservation.fetch(:num_instances) %></p>
+    <% end %>
+  </li>
+<% end %>
+</ul>

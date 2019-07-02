@@ -67,7 +67,18 @@ class EventsController < ApplicationController
 
   def show
     set_group
-    @event = Scoutinv.new.find_event(group_slug: params[:group_id], event_slug: params[:id])
+    scoutinv = Scoutinv.new
+    @event = scoutinv.find_event(group_slug: params[:group_id], event_slug: params[:id])
+
+    @reservations = scoutinv.find_event_reservations(group_slug: @event.fetch(:group_slug), event_slug: @event.fetch(:event_slug))
+    @reservations = @reservations.map do |reservation|
+      reservation[:image_paths] = reservation.fetch(:blob_slugs).map do |blob_slug|
+        blob_path(blob_slug, format: "jpg", variant: "small", fallback: true)
+      end
+
+      reservation
+    end
+
     render
   end
 

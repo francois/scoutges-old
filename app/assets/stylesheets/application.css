@@ -40,6 +40,10 @@
   vertical-align: middle;
 }
 
+.calendar .today span {
+  font-weight: normal;
+}
+
 .calendar .leased {
   background-color: #ccf;
   color: black;

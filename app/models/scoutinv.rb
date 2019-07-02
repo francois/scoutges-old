@@ -443,6 +443,20 @@ class Scoutinv
       .to_a
   end
 
+  def find_event_reservations(group_slug:, event_slug:)
+    @reservations_ds
+      .join(@instances_ds.as(:instances), [:group_slug, :instance_slug])
+      .join(@products_ds.as(:products), [:group_slug, :product_slug])
+      .left_join(@product_images_ds.as(:product_images), [:group_slug, :product_slug])
+      .where(group_slug: group_slug, event_slug: event_slug)
+      .select(Sequel[:products][:group_slug], Sequel[:products][:product_slug], Sequel[:products][:name].as(:product_name), Sequel[:products][:description].as(:product_description))
+      .select_append{ count(reservation_slug).as(:num_instances) }
+      .select_append(Sequel.function(:array_agg, Sequel.lit('DISTINCT "product_images"."blob_slug"')).as(:blob_slugs))
+      .group_by(Sequel[:products][:group_slug], Sequel[:products][:product_slug], Sequel[:products][:name], Sequel[:products][:description])
+      .order_by(Sequel.function(:unaccent, Sequel[:products][:name]))
+      .to_a
+  end
+
   # @param after [NilClass | Date] Finds events that start on or after this date.
   #     If nil, does not limit events by `start_on`.
   # @param before [NilClass | Date] Finds events that start_on or before this date.
