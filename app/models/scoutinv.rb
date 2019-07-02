@@ -612,7 +612,35 @@ class Scoutinv
 
   attr_reader :blob_storage
 
+  # Return a URL-safe string that is suitable for uniquely identifying an object.
+  #
+  # The string is *probably* globally unique, but is not guaranteed to be.
   def generate_slug
+    # Due to the birthday paradox, we have to use a larger slug size than
+    # we would expect. Given that we don't retry if a slug already exists,
+    # we simply use a larger and larger number of characters in slugs, in
+    # the hope that we don't ever hit a duplicate key exception.
+    #
+    # The birthday paradox says that we have a 50/50 chance of having a
+    # duplicate after we have N elements in our collection:
+    #
+    #     (1..8).map{|n| [n, (36**n)>>1]}.to_h
+    #     {1=>18,
+    #      2=>648,
+    #      3=>23328,
+    #      4=>839808,
+    #      5=>30233088,
+    #      6=>1088391168,
+    #      7=>39182082048,
+    #      8=>1410554953728}
+    #
+    # At 3-4 characters, the likelyhood that we generate a duplicate
+    # key is already low. Just to be on the safe side, and because
+    # we will be importing data from a previous incarnation of this
+    # system, we use a safe 6 character slug, giving us at least
+    # 1,088,391,168 elements before we have a 50/50 chance of
+    # generating a duplicate. This should be sufficient for the
+    # foreseeable future.
     SecureRandom.alphanumeric(6).downcase
   end
 
