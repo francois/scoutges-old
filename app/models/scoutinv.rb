@@ -35,9 +35,11 @@ class Scoutinv
     admin_name:,
     admin_phone:,
     admin_email:,
-    admin_password:
+    admin_password:,
+
+    group_slug: generate_slug
   )
-    generate_slug.tap do |group_slug|
+    group_slug.tap do
       @groups_ds.insert(
         admin_email: admin_email,
         admin_name:  admin_name,
@@ -53,11 +55,11 @@ class Scoutinv
     end
   end
 
-  def register_troop(group_slug:, name:)
-    generate_slug.tap do |slug|
+  def register_troop(group_slug:, name:, troop_slug: generate_slug)
+    troop_slug.tap do
       @troops_ds.insert(
         group_slug: group_slug,
-        troop_slug: slug,
+        troop_slug: troop_slug,
         name:       name,
       )
     end
@@ -126,9 +128,11 @@ class Scoutinv
     aisle:,
     bin:,
 
-    images:
+    images:,
+
+    product_slug: generate_slug
   )
-    generate_slug.tap do |product_slug|
+    product_slug.tap do
       @products_ds.insert(
         aisle:                aisle,
         bin:                  bin,
@@ -220,6 +224,7 @@ class Scoutinv
   def register_troop_event(
     group_slug:,
     troop_slug:,
+    event_slug: generate_slug,
 
     name:,
     description:,
@@ -229,7 +234,7 @@ class Scoutinv
     end_on:,
     return_on:
   )
-    generate_slug.tap do |event_slug|
+    event_slug.tap do
       @events_ds.insert(
         description:  description,
         end_on:       end_on,
@@ -273,6 +278,29 @@ class Scoutinv
         start_on:     start_on,
       )
     end
+  end
+
+  def add_product_to_event(group_slug:, event_slug:, product_slug:, quantity: 1)
+    # When we introduce kits, this query will need to evolve to reduce
+    # the likelyhood of reserving an instance that belongs on a kit
+    instance_slugs = @products_ds
+      .left_join(@instances_ds.as(:instances), [:group_slug, :product_slug])
+      .left_join(@reservations_ds.as(:reservations), [:group_slug, :instance_slug])
+      .where(group_slug: group_slug, product_slug: product_slug)
+      .group_by(:group_slug, :instance_slug)
+      .order_by(Sequel.function(:count, Sequel[:reservations][:id]), Sequel.function(:random))
+      .limit(quantity)
+      .select_map(:instance_slug)
+
+    reservation_rows = instance_slugs.map do |instance_slug|
+      [group_slug, event_slug, instance_slug, generate_slug]
+    end
+
+    @reservations_ds.import(
+      [:group_slug, :event_slug, :instance_slug, :reservation_slug],
+      reservation_rows)
+
+    reservation_rows.map(&:last)
   end
 
   # @param event_slug [String] The slug of an event on which to add the instance.

@@ -11,6 +11,7 @@ Sequel.migration do
       column :updated_at, :timestamptz, null: false, default: Sequel.function(:now)
 
       primary_key [:group_slug, :name]
+      foreign_key [:group_slug], :groups, on_update: :cascade, on_delete: :cascade
     end
   end
 end

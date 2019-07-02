@@ -1224,6 +1224,14 @@ ALTER TABLE ONLY public.reservations
 
 
 --
+-- Name: troops troops_group_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.troops
+    ADD CONSTRAINT troops_group_slug_fkey FOREIGN KEY (group_slug) REFERENCES public.groups(group_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: variants variants_blob_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
