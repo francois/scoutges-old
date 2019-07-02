@@ -36,7 +36,7 @@ existed at that time were flagged as "completed". Future functions will receive 
 * [x] Change product details _2019-07-02_
 * [x] Change product quantity _2019-07-02_
 * [x] Remove product _2019-07-02_
-* [ ] View reservations on product details page
+* [x] View reservations on product details page _2019-07-02_
 * [ ] Change instance state from product details page
 
 ## Events

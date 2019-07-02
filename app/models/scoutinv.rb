@@ -427,6 +427,22 @@ class Scoutinv
       .yield_self{|product| product && product.merge(blob_slugs: product.fetch(:blob_slugs, []).compact)}
   end
 
+  def find_product_reservations(group_slug:, product_slug:, cutoff_on: Time.at(0))
+    @reservations_ds
+      .join(@instances_ds.as(:instances), [:group_slug, :instance_slug])
+      .join(@events_ds.as(:events), [:group_slug, :event_slug])
+      .where(group_slug: group_slug, product_slug: product_slug)
+      .where(Sequel[:events][:lease_on] => cutoff_on ... 100.years.from_now.to_date)
+      .order(Sequel[:reservations][:instance_slug], Sequel[:events][:start_on])
+      .select(Sequel[:reservations][:instance_slug].as(:instance_slug))
+      .select_append(Sequel[:events][:name].as(:event_name))
+      .select_append(Sequel[:events][:lease_on].as(:lease_on))
+      .select_append(Sequel[:events][:return_on].as(:return_on))
+      .select_append(Sequel[:events][:event_slug])
+      .select_append(Sequel[:events][:group_slug])
+      .to_a
+  end
+
   # @param after [NilClass | Date] Finds events that start on or after this date.
   #     If nil, does not limit events by `start_on`.
   # @param before [NilClass | Date] Finds events that start_on or before this date.

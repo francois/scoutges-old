@@ -44,11 +44,14 @@ class ProductsController < ApplicationController
   end
 
   def show
-    @product = Scoutinv.new.find_product(group_slug: params[:group_id], product_slug: params[:id])
+    scoutinv = Scoutinv.new
+
+    @product = scoutinv.find_product(group_slug: params[:group_id], product_slug: params[:id])
     @product[:image_paths] = @product.fetch(:blob_slugs).map do |blob_slug|
       blob_path(blob_slug, format: "jpg", variant: "medium", fallback: true)
     end
 
+    @reservations = scoutinv.find_product_reservations(group_slug: @product[:group_slug], product_slug: @product[:product_slug], cutoff_on: 2.years.ago.to_date)
     render
   end
 

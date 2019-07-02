@@ -6,8 +6,39 @@
 <% end %>
 
 <%= simple_format @product.fetch(:description) %>
+<p>Quantity: <%= @product.fetch(:num_instances) %></p>
 <p>Location: <%= product_location(@product) %></p>
 <p>Prices: <%= number_to_currency @product.fetch(:internal_unit_price) %> / <%= number_to_currency @product.fetch(:external_unit_price) %></p>
+
+<table>
+  <caption>Reservations up to 2 years ago</caption>
+  <thead>
+    <tr>
+      <th>Serial</th>
+      <th>Event</th>
+      <th>Lease on</th>
+      <th>Return on</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @reservations.group_by{|r| r[:instance_slug]}.each do |instance_slug, reservations| %>
+      <tr>
+        <td rowspan="<%= reservations.length %>"><%= instance_slug %></td>
+        <% reservation = reservations.first %>
+        <td><%= link_to reservation.fetch(:event_name), group_event_path(reservation.fetch(:group_slug), reservation.fetch(:event_slug)) %></td>
+        <td><%= reservation.fetch(:lease_on).iso8601 %></td>
+        <td><%= reservation.fetch(:return_on).iso8601 %></td>
+      </tr>
+      <% reservations[1..-1].each do |reservation| %>
+        <tr>
+          <td><%= link_to reservation.fetch(:event_name), group_event_path(reservation.fetch(:group_slug), reservation.fetch(:event_slug)) %></td>
+          <td><%= reservation.fetch(:lease_on).iso8601 %></td>
+          <td><%= reservation.fetch(:return_on).iso8601 %></td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>
 
 <%= link_to "Edit", edit_group_product_path(@product.fetch(:group_slug), @product.fetch(:product_slug)) %>
 <%= link_to "Back to list", group_products_path(@product.fetch(:group_slug)) %>
