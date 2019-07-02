@@ -580,7 +580,7 @@ class Scoutinv
       .order_by(Sequel.function(:unaccent, Sequel[:products][:name]))
       .select_all(:products)
       .select_append{ count(instance_slug).as(:num_instances) }
-      .select_append(Sequel.function(:array_agg, Sequel[:product_images][:blob_slug]).as(:blob_slugs))
+      .select_append(Sequel.function(:array_agg, Sequel.lit('DISTINCT "product_images"."blob_slug"')).as(:blob_slugs))
   end
 
   def add_instances(group_slug, product_slug, quantity)
