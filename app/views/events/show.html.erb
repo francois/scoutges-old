@@ -52,13 +52,17 @@
               <% if date < @event.fetch(:lease_on) %>
                 <br><span><%= number_with_delimiter((@event.fetch(:lease_on) - date).to_i) %> days left</span>
               <% end %>
-            <% elsif date == @event.fetch(:lease_on) %>
+            <% end %>
+            <% if date == @event.fetch(:lease_on) %>
               Pick up
-            <% elsif date == @event.fetch(:start_on) %>
+            <% end %>
+            <% if date == @event.fetch(:start_on) %>
               Start
-            <% elsif date == @event.fetch(:end_on) %>
+            <% end %>
+            <% if date == @event.fetch(:end_on) %>
               End
-            <% elsif date == @event.fetch(:return_on) %>
+            <% end %>
+            <% if date == @event.fetch(:return_on) %>
               Return
             <% end %>
             </p>
