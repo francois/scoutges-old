@@ -124,10 +124,10 @@ DB.transaction do
     name: "Chouettes camp d'été",
     description: "Terrain de camping, auto-cuisine, en tente.",
 
-    lease_on: 2.weeks.from_now.to_date,
-    start_on: 2.weeks.from_now.to_date.succ,
-    end_on: 3.weeks.from_now.to_date,
-    return_on: 3.weeks.from_now.to_date.succ,
+    lease_on: 3.weeks.from_now.to_date,
+    start_on: 3.weeks.from_now.to_date.succ,
+    end_on: 4.weeks.from_now.to_date,
+    return_on: 4.weeks.from_now.to_date.succ,
   )
 
   scoutinv.add_product_to_event(
