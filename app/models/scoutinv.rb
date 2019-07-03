@@ -413,7 +413,11 @@ class Scoutinv
     ds = find_products_ds(group_slug)
 
     if search_string.present?
-      ds = ds.where(Sequel.ilike(Sequel.function(:unaccent, Sequel[:products][:name]), Sequel.function(:unaccent, "%#{search_string}%")))
+      ds = ds.where(
+        Sequel.ilike(Sequel.function(:unaccent, Sequel[:products][:name]), Sequel.function(:unaccent, "%#{search_string}%"))
+      ).or(
+        Sequel.ilike(Sequel.function(:unaccent, Sequel[:products][:description]), Sequel.function(:unaccent, "%#{search_string}%"))
+      )
     end
 
     if before.present?

@@ -6,6 +6,13 @@
 <%= link_to "Next >", group_products_path(@group.fetch(:group_slug), after: @products.last.fetch(:product_slug)) if @products.any? %>
 </nav>
 
+<%= form_tag group_products_path(@group.fetch(:group_slug)), method: :get do %>
+  <%= label_tag :q, "Query:" %>
+  <%= search_field_tag :q, @q %>
+  <%= submit_tag "Search", name: nil %>
+  <%= link_to "Show all", group_products_path(@group.fetch(:group_slug)) %>
+<% end %>
+
 <div class="media-grid">
   <% @products.each do |product| %>
     <div class="media">

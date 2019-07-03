@@ -32,12 +32,14 @@ class ProductsController < ApplicationController
 
   def index
     set_group
+    @q = params[:q]
     @products = Scoutinv.new.find_products(
       group_slug: @group.fetch(:group_slug),
-      search_string: params[:q],
+      search_string: @q,
       after: params[:after],
       before: params[:before],
     )
+
     @products = @products.map do |product|
       product[:image_paths] = product.fetch(:blob_slugs).map do |blob_slug|
         blob_path(blob_slug, format: "jpg", variant: "small", fallback: true)
@@ -45,6 +47,7 @@ class ProductsController < ApplicationController
 
       product
     end
+
     render
   end
 
