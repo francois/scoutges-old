@@ -398,6 +398,7 @@ class Scoutinv
   #
   #     tents = Scoutinv.new.find_products("tent")
   #
+  # @param group_slug [String] The slug of the group we're targeting.
   # @param search_string [NilClass, String] A string to search for in products.
   #     The search will look in the product's name, description and location.
   #     This string is not case sensitive.
@@ -408,10 +409,29 @@ class Scoutinv
   #     on this page, so that we can return the next page of products.
   #
   # @return [Array<Hash>] The products that match `search_string`, if any.
-  def find_products(search_string, count: 25, before: nil, after: nil)
-    find_products_ds
-      .take(count)
+  def find_products(group_slug:, count: 25, search_string: nil, before: nil, after: nil)
+    ds = find_products_ds(group_slug)
+
+    if search_string.present?
+      ds = ds.where(Sequel.ilike(Sequel.function(:unaccent, Sequel[:products][:name]), Sequel.function(:unaccent, "%#{search_string}%")))
+    end
+
+    if before.present?
+      ds = ds.where{ products[:name] < before }
+        .order_by(Sequel.desc(Sequel.function(:unaccent, Sequel[:products][:name])))
+    end
+
+    if after.present?
+      ds = ds.where{ products[:name] > after }
+        .order_by(Sequel.asc(Sequel.function(:unaccent, Sequel[:products][:name])))
+    end
+
+    result = ds.take(count)
       .map{|product| product.merge(blob_slugs: product.fetch(:blob_slugs, []).compact)}
+
+    result = result.reverse if before.present?
+
+    result
   end
 
   def find_product(group_slug:, product_slug:)
@@ -420,8 +440,7 @@ class Scoutinv
     # to #merge. To combat this, we instead guard the call to #merge with a presence check.
     # This prevents a NoMethodError which is exactly what we want (due to the short-circuiting
     # behaviour of &&).
-    find_products_ds
-      .where(group_slug: group_slug)
+    find_products_ds(group_slug)
       .where(product_slug: product_slug)
       .first
       .yield_self{|product| product && product.merge(blob_slugs: product.fetch(:blob_slugs, []).compact)}
@@ -662,10 +681,11 @@ class Scoutinv
     SecureRandom.alphanumeric(6).downcase
   end
 
-  def find_products_ds
+  def find_products_ds(group_slug)
     @products_ds
       .left_join(@instances_ds.as(:instances), [:group_slug, :product_slug])
       .left_join(@product_images_ds.as(:product_images), [:group_slug, :product_slug])
+      .where(Sequel[:products][:group_slug] => group_slug)
       .group_by(Sequel[:products][:id], Sequel[:products][:group_slug], Sequel[:products][:product_slug])
       .order_by(Sequel.function(:unaccent, Sequel[:products][:name]))
       .select_all(:products)

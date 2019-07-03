@@ -1,25 +1,26 @@
 <h1>Products</h1>
 
-<table>
-  <thead>
-    <tr>
-      <th colspan="2">Name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @products.each do |product| %>
-      <tr>
-        <td>
-          <%= link_to group_product_path(product.fetch(:group_slug), product.fetch(:product_slug)) do %>
-            <%= image_tag product.fetch(:image_paths).first, alt: "", width: 250 if product.fetch(:image_paths).any? %>
-          <% end %>
-        </td>
-        <td>
-          <%= link_to product.fetch(:name), group_product_path(product.fetch(:group_slug), product.fetch(:product_slug)) %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
+<nav>
+<%= link_to "< Previous", group_products_path(@group.fetch(:group_slug), before: @products.first.fetch(:product_slug)) if @products.any? %>
 <%= link_to "Register product", new_group_product_path(@group.fetch(:group_slug)) %>
+<%= link_to "Next >", group_products_path(@group.fetch(:group_slug), after: @products.last.fetch(:product_slug)) if @products.any? %>
+</nav>
+
+<div class="media-grid">
+  <% @products.each do |product| %>
+    <div class="media">
+      <%= link_to group_product_path(product.fetch(:group_slug), product.fetch(:product_slug)), class: "img" do %>
+        <%= image_tag product.fetch(:image_paths).first, alt: "", width: 250 if product.fetch(:image_paths).any? %>
+      <% end %>
+      <h3 class="title">
+        <%= link_to product.fetch(:name), group_product_path(product.fetch(:group_slug), product.fetch(:product_slug)) %>
+      </h3>
+    </div>
+  <% end %>
+</div>
+
+<nav>
+<%= link_to "< Previous", group_products_path(@group.fetch(:group_slug), before: @products.first.fetch(:product_slug)) if @products.any? %>
+<%= link_to "Register product", new_group_product_path(@group.fetch(:group_slug)) %>
+<%= link_to "Next >", group_products_path(@group.fetch(:group_slug), after: @products.last.fetch(:product_slug)) if @products.any? %>
+</nav>

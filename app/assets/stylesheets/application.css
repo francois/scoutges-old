@@ -63,3 +63,37 @@
 .calendar td li {
   text-align: left;
 }
+
+nav {
+  clear: both;
+  margin: 2rem 0;
+}
+
+nav a {
+  margin: 0 2rem;
+}
+
+.media-grid {
+  margin: 1rem 0;
+}
+
+.media-grid .media {
+  float: left;
+  margin: 0.2rem;
+  padding: 0.2rem;
+  width: 15rem;
+}
+
+.media-grid .img {
+  float: left;
+  margin-right: 0.2rem;
+}
+
+.media-grid .title {
+  margin-left: 0.2rem;
+  text-align: center;
+}
+
+.media-grid img {
+  border: 0;
+}
