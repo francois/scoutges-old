@@ -4,29 +4,39 @@ class Scoutinv
   NotEnoughUnusedInstances = Class.new(RuntimeError)
 
   def initialize(
-    blob_storage:       DatabaseBlobStorage.new,
-    enrollments_ds:     DB[:enrollments],
-    events_ds:          DB[:events],
-    groups_ds:          DB[:groups],
-    instances_ds:       DB[:instances],
-    memberships_ds:     DB[:memberships],
-    product_images_ds:  DB[:product_images],
-    products_ds:        DB[:products],
-    reservations_ds:    DB[:reservations],
-    troops_ds:          DB[:troops],
-    users_ds:           DB[:users]
+    blob_storage:          DatabaseBlobStorage.new,
+    categories_ds:         DB[:categories],
+    enrollments_ds:        DB[:enrollments],
+    events_ds:             DB[:events],
+    groups_ds:             DB[:groups],
+    instances_ds:          DB[:instances],
+    memberships_ds:        DB[:memberships],
+    product_categories_ds: DB[:product_categories],
+    product_images_ds:     DB[:product_images],
+    products_ds:           DB[:products],
+    reservations_ds:       DB[:reservations],
+    troops_ds:             DB[:troops],
+    users_ds:              DB[:users]
   )
-    @blob_storage      = blob_storage
-    @enrollments_ds    = enrollments_ds
-    @events_ds         = events_ds
-    @groups_ds         = groups_ds
-    @instances_ds      = instances_ds
-    @memberships_ds    = memberships_ds
-    @product_images_ds = product_images_ds
-    @products_ds       = products_ds
-    @reservations_ds   = reservations_ds
-    @troops_ds         = troops_ds
-    @users_ds          = users_ds
+    @blob_storage          = blob_storage
+    @categories_ds         = categories_ds
+    @enrollments_ds        = enrollments_ds
+    @events_ds             = events_ds
+    @groups_ds             = groups_ds
+    @instances_ds          = instances_ds
+    @memberships_ds        = memberships_ds
+    @product_categories_ds = product_categories_ds
+    @product_images_ds     = product_images_ds
+    @products_ds           = products_ds
+    @reservations_ds       = reservations_ds
+    @troops_ds             = troops_ds
+    @users_ds              = users_ds
+  end
+
+  def find_category_codes
+    @categories_ds
+      .order(:category_code)
+      .select_map(:category_code)
   end
 
   def register_group(
@@ -113,6 +123,9 @@ class Scoutinv
   # @param images [Array<#read>] An array of readable objects that are images
   #     that will be associated with this product.
   #
+  # @param categories [Array<String>] An array of categories to which this product
+  #     belongs to. This array is considered canonical: on every
+  #
   # @return String The slug of the newly registered product.
   def register_product(
     group_slug:,
@@ -128,6 +141,7 @@ class Scoutinv
     aisle:,
     bin:,
 
+    category_codes:,
     images:,
 
     product_slug: generate_slug
@@ -150,11 +164,22 @@ class Scoutinv
         [group_slug, product_slug, blob_storage.import(file)]
       end
 
+      @product_categories_ds.import(
+        [:group_slug, :product_slug, :category_code],
+        category_codes.map{|category_code| [group_slug, product_slug, category_code]})
       @product_images_ds.import([:group_slug, :product_slug, :blob_slug], blob_slugs) if blob_slugs.any?
     end
   end
 
   # Updates the row identified by `product_slug` with the new information.
+  #
+  # @param images [Array<#read>] An array of IO-like objects that are images
+  #     that describe this product. images is strictly additive: not naming
+  #     an image that was previously on the object will not remove it from
+  #     this product's images list.
+  # @param categories [Array<String>] An array of category codes to which this
+  #     product belongs to. This array is considered canonical: on every write,
+  #     the only categories this product will belong to are the ones named here.
   #
   # @return [] Returns no meaningful value.
   #
@@ -164,7 +189,7 @@ class Scoutinv
                              name:, description:,
                              internal_unit_price:, external_unit_price:,
                              building:, room:, aisle:, bin:,
-                             images:)
+                             category_codes:, images:)
     updated_attrs = {
       aisle:                aisle,
       bin:                  bin,
@@ -181,6 +206,11 @@ class Scoutinv
     @products_ds
       .where(group_slug: group_slug, product_slug: product_slug)
       .update(updated_attrs)
+
+    @product_categories_ds.where(group_slug: group_slug, product_slug: product_slug).delete
+    @product_categories_ds.import(
+      [:group_slug, :product_slug, :category_code],
+      category_codes.map{|category_code| [group_slug, product_slug, category_code]})
 
     blob_slugs = images.map do |file|
       [group_slug, product_slug, blob_storage.import(file)]
@@ -689,12 +719,14 @@ class Scoutinv
     @products_ds
       .left_join(@instances_ds.as(:instances), [:group_slug, :product_slug])
       .left_join(@product_images_ds.as(:product_images), [:group_slug, :product_slug])
+      .left_join(@product_categories_ds.as(:product_categories), [:group_slug, :product_slug])
       .where(Sequel[:products][:group_slug] => group_slug)
       .group_by(Sequel[:products][:id], Sequel[:products][:group_slug], Sequel[:products][:product_slug])
       .order_by(Sequel.function(:unaccent, Sequel[:products][:name]))
       .select_all(:products)
       .select_append{ count(instance_slug).as(:num_instances) }
       .select_append(Sequel.function(:array_agg, Sequel.lit('DISTINCT "product_images"."blob_slug"')).as(:blob_slugs))
+      .select_append(Sequel.function(:array_agg, Sequel.lit('DISTINCT "product_categories"."category_code" ORDER BY "product_categories"."category_code"')).as(:category_codes))
   end
 
   def add_instances(group_slug, product_slug, quantity)

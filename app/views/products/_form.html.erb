@@ -1,36 +1,59 @@
 <%= render_errors @result&.errors %>
 
-<%= label_tag :product_name, "Name" %><br>
-<%= text_field_tag "product[name]", @product[:name], placeholder: "5x10 tent" %><br>
+<fieldset>
+  <legend>Description</legend>
+  <%= label_tag :product_name, "Name" %><br>
+  <%= text_field_tag "product[name]", @product[:name], placeholder: "5x10 tent" %><br>
 
-<%= label_tag :product_description, "Description" %><br>
-<%= text_area_tag "product[description]", @product[:description], placeholder: "Large tent with space for 5 people and bagage", size: "60x10" %><br>
+  <%= label_tag :product_description, "Description" %><br>
+  <%= text_area_tag "product[description]", @product[:description], placeholder: "Large tent with space for 5 people and bagage", size: "60x10" %><br>
+</fieldset>
 
-<%= label_tag :product_internal_unit_price, "Internal unit price" %><br>
-<%= number_field_tag "product[internal_unit_price]", @product[:internal_unit_price] || 0, min: "0.00", max: 10_000, step: "0.01", size: 5 %> / day<br>
+<fieldset>
+  <legend>Pricing</legend>
+  <%= label_tag :product_internal_unit_price, "Internal unit price" %><br>
+  <%= number_field_tag "product[internal_unit_price]", @product[:internal_unit_price] || 0, min: "0.00", max: 10_000, step: "0.01", size: 5 %> / day<br>
 
-<%= label_tag :product_external_unit_price, "External unit price" %><br>
-<%= number_field_tag "product[external_unit_price]", @product[:external_unit_price] || 0, min: "0.00", max: 10_000, step: "0.01", size: 5 %> / day<br>
+  <%= label_tag :product_external_unit_price, "External unit price" %><br>
+  <%= number_field_tag "product[external_unit_price]", @product[:external_unit_price] || 0, min: "0.00", max: 10_000, step: "0.01", size: 5 %> / day<br>
+</fieldset>
 
-<%= label_tag :product_building, "Building" %><br>
-<%= text_field_tag "product[building]", @product[:building], placeholder: "5th Ave" %><br>
+<fieldset>
+  <legend>Location</legend>
+  <%= label_tag :product_building, "Building" %><br>
+  <%= text_field_tag "product[building]", @product[:building], placeholder: "5th Ave" %><br>
 
-<%= label_tag :product_room, "Room" %><br>
-<%= text_field_tag "product[room]", @product[:room], placeholder: "back" %><br>
+  <%= label_tag :product_room, "Room" %><br>
+  <%= text_field_tag "product[room]", @product[:room], placeholder: "back" %><br>
 
-<%= label_tag :product_aisle, "Aisle" %><br>
-<%= text_field_tag "product[aisle]", @product[:aisle], placeholder: "3" %><br>
+  <%= label_tag :product_aisle, "Aisle" %><br>
+  <%= text_field_tag "product[aisle]", @product[:aisle], placeholder: "3" %><br>
 
-<%= label_tag :product_bin, "Bin" %><br>
-<%= text_field_tag "product[bin]", @product[:bin], placeholder: "N8" %><br>
+  <%= label_tag :product_bin, "Bin" %><br>
+  <%= text_field_tag "product[bin]", @product[:bin], placeholder: "N8" %><br>
 
-<%= label_tag :product_quantity, "Num instances" %><br>
-<%= number_field_tag "product[quantity]", @product[:num_instances] %><br>
+  <%= label_tag :product_quantity, "Quantity" %><br>
+  <%= number_field_tag "product[quantity]", @product[:num_instances] %><br>
+</fieldset>
 
-<%= label_tag :product_image_url, "Image URL" %><br>
-<%= text_field_tag "product[image_url]", @product[:image_url] %><br>
+<fieldset>
+  <legend>Categories</legend>
 
-<%= label_tag :product_image, "Image" %><br>
-<%= file_field_tag "product[image]" %><br>
+  <% @category_codes.each do |category_code| %>
+    <%= check_box_tag "product[category_codes][]", category_code, @product[:category_codes].include?(category_code), id: "product_category_#{category_code}" %>
+    <%= label_tag :"product_category_#{category_code}", category_code.humanize %>
+    <br>
+  <% end %>
+</fieldset>
+
+<fieldset>
+  <legend>Images</legend>
+
+  <%= label_tag :product_image_url, "Image URL" %><br>
+  <%= text_field_tag "product[image_url]", @product[:image_url], size: 80 %><br>
+
+  <%= label_tag :product_image, "Image" %><br>
+  <%= file_field_tag "product[image]" %><br>
+</fieldset>
 
 <%= submit_tag "Save" %>

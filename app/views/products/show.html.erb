@@ -9,6 +9,7 @@
 <p>Quantity: <%= @product.fetch(:num_instances) %></p>
 <p>Location: <%= product_location(@product) %></p>
 <p>Prices: <%= number_to_currency @product.fetch(:internal_unit_price) %> / <%= number_to_currency @product.fetch(:external_unit_price) %></p>
+<p>Categories: <%= @product.fetch(:category_codes).map(&:humanize).to_sentence %></p>
 
 <table>
   <caption>Reservations up to 2 years ago</caption>

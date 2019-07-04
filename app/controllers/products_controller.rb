@@ -14,6 +14,7 @@ class ProductsController < ApplicationController
     required(:aisle).maybe(Types::StrippedString)
     required(:bin).maybe(Types::StrippedString)
     required(:quantity).filled(:integer)
+    required(:category_codes).array(Types::StrippedString)
     required(:image_url).maybe(Types::StrippedString)
   end
 
@@ -27,6 +28,7 @@ class ProductsController < ApplicationController
     required(:aisle).maybe(Types::StrippedString)
     required(:bin).maybe(Types::StrippedString)
     required(:quantity).filled(:integer)
+    required(:category_codes).array(Types::StrippedString)
     required(:image_url).maybe(Types::StrippedString)
   end
 
@@ -65,7 +67,8 @@ class ProductsController < ApplicationController
 
   def new
     set_group
-    @product = {quantity: 1}
+    @category_codes = Scoutinv.new.find_category_codes
+    @product = {num_instances: 1, category_codes: []}
     render
   end
 
@@ -89,6 +92,7 @@ class ProductsController < ApplicationController
             aisle:                output.fetch(:aisle),
             bin:                  output.fetch(:bin),
             building:             output.fetch(:building),
+            category_codes:       output.fetch(:category_codes),
             description:          output.fetch(:description) || "",
             external_unit_price:  output.fetch(:external_unit_price),
             group_slug:           @group.fetch(:group_slug),
@@ -124,15 +128,18 @@ class ProductsController < ApplicationController
       redirect_to group_product_path(@group.fetch(:group_slug), product_slug)
     else
       @product = params[:product]
-        .slice(:name, :description, :internal_unit_price, :external_unit_price, :building, :room, :aisle, :bin, :image_url)
-        .merge(group_slug: @gropu.fetch(:group_slug))
+        .slice(:name, :description, :internal_unit_price, :external_unit_price, :building, :room, :aisle, :bin, :image_url, :category_codes)
+        .merge(group_slug: @group.fetch(:group_slug))
+      @category_codes = Scoutinv.new.find_category_codes
       render action: :new
     end
   end
 
   def edit
     set_group
-    @product = Scoutinv.new.find_product(group_slug: params[:group_id], product_slug: params[:id])
+    scoutinv = Scoutinv.new
+    @category_codes = scoutinv.find_category_codes
+    @product = scoutinv.find_product(group_slug: params[:group_id], product_slug: params[:id])
     @product[:image_paths] = @product.fetch(:blob_slugs).map do |blob_slug|
       blob_path(blob_slug, format: "jpg", variant: "medium", fallback: true)
     end
@@ -154,31 +161,33 @@ class ProductsController < ApplicationController
         # Handle upload by image URL
         output[:images] << import_image(output.fetch(:image_url)) if output[:image_url]
 
-        scoutinv.change_product_details(
-          aisle:                output.fetch(:aisle),
-          bin:                  output.fetch(:bin),
-          building:             output.fetch(:building),
-          description:          output.fetch(:description) || "",
-          external_unit_price:  output.fetch(:external_unit_price),
-          group_slug:           @group.fetch(:group_slug),
-          images:               output.fetch(:images),
-          internal_unit_price:  output.fetch(:internal_unit_price),
-          name:                 output.fetch(:name),
-          product_slug:         params[:id],
-          room:                 output.fetch(:room),
-        )
+        DB.transaction do
+          scoutinv.change_product_details(
+            aisle:                output.fetch(:aisle),
+            bin:                  output.fetch(:bin),
+            building:             output.fetch(:building),
+            category_codes:       output.fetch(:category_codes),
+            description:          output.fetch(:description) || "",
+            external_unit_price:  output.fetch(:external_unit_price),
+            group_slug:           @group.fetch(:group_slug),
+            images:               output.fetch(:images),
+            internal_unit_price:  output.fetch(:internal_unit_price),
+            name:                 output.fetch(:name),
+            product_slug:         params[:id],
+            room:                 output.fetch(:room),
+          )
 
-        scoutinv.change_product_quantity(
-          group_slug: @group.fetch(:group_slug),
-          product_slug: params[:id],
-          quantity: output.fetch(:quantity),
-        )
+          scoutinv.change_product_quantity(
+            group_slug: @group.fetch(:group_slug),
+            product_slug: params[:id],
+            quantity: output.fetch(:quantity),
+          )
 
-
-        product = scoutinv.find_product(group_slug: @group.fetch(:group_slug), product_slug: params[:id])
-        product.fetch(:blob_slugs).each do |blob_slug|
-          Rails.logger.info "Enqueuing create-image-variants job for #{blob_slug.inspect}"
-          CreateImageVariantsJob.enqueue(blob_slug)
+          product = scoutinv.find_product(group_slug: @group.fetch(:group_slug), product_slug: params[:id])
+          product.fetch(:blob_slugs).each do |blob_slug|
+            Rails.logger.info "Enqueuing create-image-variants job for #{blob_slug.inspect}"
+            CreateImageVariantsJob.enqueue(blob_slug)
+          end
         end
       ensure
         # Make sure we don't keep open files around
@@ -194,8 +203,9 @@ class ProductsController < ApplicationController
       redirect_to group_product_path(@group.fetch(:group_slug), params[:id])
     else
       @product = params[:product]
-        .slice(:name, :description, :internal_unit_price, :external_unit_price, :building, :room, :aisle, :bin, :image_url)
+        .slice(:name, :description, :internal_unit_price, :external_unit_price, :building, :room, :aisle, :bin, :image_url, :category_codes)
         .merge(group_slug: params[:group_id], product_slug: params[:id])
+      @category_codes = Scoutinv.new.find_category_codes
       render action: :edit
     end
   end

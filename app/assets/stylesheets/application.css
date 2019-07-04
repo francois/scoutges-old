@@ -89,6 +89,12 @@ nav a {
   margin-right: 0.2rem;
 }
 
+.media-grid img {
+  max-height: 250px;
+  max-width: 250px;
+  width: 250px;
+}
+
 .media-grid .title {
   margin-left: 0.2rem;
   text-align: center;

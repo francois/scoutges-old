@@ -68,11 +68,31 @@ DB.transaction do
       aisle: "4",
       bin: "3",
 
+      category_codes: %w(),
       images: [tent]
     )
 
     scoutinv.change_product_quantity(group_slug: "10eme", product_slug: slug, quantity: 6)
   end
+
+    scoutinv.change_product_details(
+      group_slug: "10eme",
+      product_slug: "tente",
+
+      name: "Tente 4x10",
+      description: "Grande tente pour 5 personnes, avec bagages",
+
+      internal_unit_price: "0",
+      external_unit_price: "15.00",
+
+      building: "Mont Plaisant",
+      room: "arrière",
+      aisle: "4",
+      bin: "3",
+
+      category_codes: %w(camping tent),
+      images: [],
+    )
 
   File.open(Rails.root + "db/seed/images/hache.jpg", "rb", encoding: "ascii-8bit") do |axe|
     slug = scoutinv.register_product(
@@ -90,6 +110,7 @@ DB.transaction do
       aisle: "6",
       bin: "7",
 
+      category_codes: %w(camping tools),
       images: [axe]
     )
 
@@ -108,6 +129,7 @@ DB.transaction do
   #     aisle: "",
   #     bin: "",
   #     images: [ham],
+  #     category_codes: %w(perishable),
   #   )
   #
   #   scoutinv.adjust_consumable_quantity(

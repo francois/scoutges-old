@@ -38,8 +38,8 @@ existed at that time were flagged as "completed". Future functions will receive 
 * [x] Remove product _2019-07-02_
 * [x] View reservations on product details page _2019-07-02_
 * [ ] Change instance state from product details page
-* [ ] Add product to categories
-* [ ] Remove product from categories
+* [x] Add product to categories _2019-07-04_
+* [x] Remove product from categories _2019-07-04_
 * [x] List product catalog _2019-07-02_
 * [x] Filter product catalog _2019-07-03_
 

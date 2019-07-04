@@ -282,6 +282,37 @@ ALTER SEQUENCE public.blobs_id_seq OWNED BY public.blobs.id;
 
 
 --
+-- Name: categories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.categories (
+    id bigint NOT NULL,
+    category_code text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
+
+
+--
 -- Name: enrollments; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -458,6 +489,39 @@ CREATE SEQUENCE public.memberships_id_seq
 --
 
 ALTER SEQUENCE public.memberships_id_seq OWNED BY public.memberships.id;
+
+
+--
+-- Name: product_categories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.product_categories (
+    id bigint NOT NULL,
+    group_slug text NOT NULL,
+    product_slug text NOT NULL,
+    category_code text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: product_categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.product_categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: product_categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.product_categories_id_seq OWNED BY public.product_categories.id;
 
 
 --
@@ -735,6 +799,13 @@ ALTER TABLE ONLY public.blobs ALTER COLUMN id SET DEFAULT nextval('public.blobs_
 
 
 --
+-- Name: categories id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.categories_id_seq'::regclass);
+
+
+--
 -- Name: enrollments id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -767,6 +838,13 @@ ALTER TABLE ONLY public.instances ALTER COLUMN id SET DEFAULT nextval('public.in
 --
 
 ALTER TABLE ONLY public.memberships ALTER COLUMN id SET DEFAULT nextval('public.memberships_id_seq'::regclass);
+
+
+--
+-- Name: product_categories id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_categories ALTER COLUMN id SET DEFAULT nextval('public.product_categories_id_seq'::regclass);
 
 
 --
@@ -832,6 +910,22 @@ ALTER TABLE ONLY public.blobs
 
 ALTER TABLE ONLY public.blobs
     ADD CONSTRAINT blobs_pkey PRIMARY KEY (blob_slug);
+
+
+--
+-- Name: categories categories_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_id_key UNIQUE (id);
+
+
+--
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_pkey PRIMARY KEY (category_code);
 
 
 --
@@ -936,6 +1030,22 @@ ALTER TABLE ONLY public.memberships
 
 ALTER TABLE ONLY public.memberships
     ADD CONSTRAINT memberships_pkey PRIMARY KEY (group_slug, email);
+
+
+--
+-- Name: product_categories product_categories_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_categories
+    ADD CONSTRAINT product_categories_id_key UNIQUE (id);
+
+
+--
+-- Name: product_categories product_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_categories
+    ADD CONSTRAINT product_categories_pkey PRIMARY KEY (group_slug, category_code, product_slug);
 
 
 --
@@ -1101,6 +1211,13 @@ ALTER TABLE public.variants CLUSTER ON variants_pkey;
 
 
 --
+-- Name: product_categories_group_slug_product_slug_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX product_categories_group_slug_product_slug_index ON public.product_categories USING btree (group_slug, product_slug);
+
+
+--
 -- Name: que_jobs_args_gin_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1184,6 +1301,22 @@ ALTER TABLE ONLY public.memberships
 
 
 --
+-- Name: product_categories product_categories_category_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_categories
+    ADD CONSTRAINT product_categories_category_code_fkey FOREIGN KEY (category_code) REFERENCES public.categories(category_code) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: product_categories product_categories_group_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_categories
+    ADD CONSTRAINT product_categories_group_slug_fkey FOREIGN KEY (group_slug, product_slug) REFERENCES public.products(group_slug, product_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: product_images product_images_blob_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1260,3 +1393,5 @@ INSERT INTO "schema_migrations" ("filename") VALUES ('20190622022529_create_prod
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622154811_create_unaccent_extension.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622192227_create_variants.rb');
 INSERT INTO "schema_migrations" ("filename") VALUES ('20190622202937_clusterify_variants.rb');
+INSERT INTO "schema_migrations" ("filename") VALUES ('20190704115640_create_categories.rb');
+INSERT INTO "schema_migrations" ("filename") VALUES ('20190704120044_create_product_categories.rb');
