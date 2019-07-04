@@ -444,13 +444,16 @@ class Scoutinv
   # @return [Array<Hash>] The products that match `search_string`, if any.
   def find_products(group_slug:, count: 25, search_string: nil, category_codes:, before: nil, after: nil)
     ds = find_products_ds(group_slug)
-    ds = ds.where(category_code: category_codes)
+    ds = ds.where(
+      Sequel.|([category_code: nil], [category_code: category_codes])
+    )
 
     if search_string.present?
       ds = ds.where(
-        Sequel.ilike(Sequel.function(:unaccent, Sequel[:products][:name]), Sequel.function(:unaccent, "%#{search_string}%"))
-      ).or(
-        Sequel.ilike(Sequel.function(:unaccent, Sequel[:products][:description]), Sequel.function(:unaccent, "%#{search_string}%"))
+        Sequel.|(
+          Sequel.ilike(Sequel.function(:unaccent, Sequel[:products][:name]), Sequel.function(:unaccent, "%#{search_string}%")),
+          Sequel.ilike(Sequel.function(:unaccent, Sequel[:products][:description]), Sequel.function(:unaccent, "%#{search_string}%"))
+        )
       )
     end
 
