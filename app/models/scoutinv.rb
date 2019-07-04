@@ -433,14 +433,18 @@ class Scoutinv
   #     The search will look in the product's name, description and location.
   #     This string is not case sensitive.
   # @param count [Integer] The number of elements to return per page.
+  # @param category_codes [Array<String>] Returns products that belong to all of
+  #     the selected categories. The empty list only products in no categories will
+  #     be returned.
   # @param before [String] The slug of the product that is the first product
   #     on this page, so that we can return the preivous page of products.
   # @param after [String] The slug of the product that is the last product
   #     on this page, so that we can return the next page of products.
   #
   # @return [Array<Hash>] The products that match `search_string`, if any.
-  def find_products(group_slug:, count: 25, search_string: nil, before: nil, after: nil)
+  def find_products(group_slug:, count: 25, search_string: nil, category_codes:, before: nil, after: nil)
     ds = find_products_ds(group_slug)
+    ds = ds.where(category_code: category_codes)
 
     if search_string.present?
       ds = ds.where(

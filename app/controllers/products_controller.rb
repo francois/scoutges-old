@@ -34,10 +34,14 @@ class ProductsController < ApplicationController
 
   def index
     set_group
+
+    @category_codes = Scoutinv.new.find_category_codes
+    @category_code = params[:category_code].blank? ? nil : params[:category_code]
     @q = params[:q]
     @products = Scoutinv.new.find_products(
       group_slug: @group.fetch(:group_slug),
       search_string: @q,
+      category_codes: Array(@category_code).empty? ? @category_codes : Array(@category_code),
       after: params[:after],
       before: params[:before],
     )

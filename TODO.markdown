@@ -41,7 +41,8 @@ existed at that time were flagged as "completed". Future functions will receive 
 * [x] Add product to categories _2019-07-04_
 * [x] Remove product from categories _2019-07-04_
 * [x] List product catalog _2019-07-02_
-* [x] Filter product catalog _2019-07-03_
+* [x] Filter product catalog by text _2019-07-03_
+* [x] Filter product catalog by product category _2019-07-04_
 
 ## Events
 

@@ -9,6 +9,10 @@
 <%= form_tag group_products_path(@group.fetch(:group_slug)), method: :get do %>
   <%= label_tag :q, "Query:" %>
   <%= search_field_tag :q, @q %>
+
+  <%= label_tag :category_code, "Category:" %>
+  <%= select_tag :category_code, options_for_select(@category_codes.map{|code| [code.humanize, code]}, @category_code), include_blank: true %>
+
   <%= submit_tag "Search", name: nil %>
   <%= link_to "Show all", group_products_path(@group.fetch(:group_slug)) %>
 <% end %>
