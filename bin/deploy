@@ -1,0 +1,14 @@
+#!/bin/bash
+set -o errexit -o nounset -o noclobber -o pipefail
+
+case "${1:-production}" in
+    production)
+        FORCE=""
+        ;;
+    *)
+        FORCE="--force"
+        ;;
+esac
+
+bin/rake test
+git push ${FORCE} https://git.heroku.com/scoutges-production.git master:master

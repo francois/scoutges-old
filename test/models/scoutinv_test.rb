@@ -11,26 +11,29 @@ class ScoutinvTest < ActiveSupport::TestCase
       admin_phone:    "888 555-1212",
       admin_password: "monkey",
     )
+
+    @category_codes = DB[:categories].select_map(:category_code)
   end
 
   test "registers product" do
     slug = @sut.register_product(
       group_slug: @group_slug,
-      name: "4x10 tent",
-      description: "Rectangular tent, 4 people with luggage",
-      internal_unit_price: 0,
-      external_unit_price: 50,
-      building: "5th Ave",
-      room: "1",
+
       aisle: "4",
       bin: nil,
-
+      building: "5th Ave",
+      category_codes: [],
+      description: "Rectangular tent, 4 people with luggage",
+      external_unit_price: 50,
       images: [],
+      internal_unit_price: 0,
+      name: "4x10 tent",
+      room: "1",
     )
 
     assert slug.present?
 
-    products = @sut.find_products(nil)
+    products = @sut.find_products(group_slug: @group_slug, category_codes: @category_codes)
     assert products
     assert products.any?
     assert products.map{|row| row[:product_slug]}.include?(slug)
@@ -39,35 +42,36 @@ class ScoutinvTest < ActiveSupport::TestCase
   test "changes product details" do
     slug = @sut.register_product(
       group_slug: @group_slug,
-      name: "4x10 tent",
-      description: "Rectangular tent, 4 people with luggage",
-      internal_unit_price: 0,
-      external_unit_price: 50,
-      building: "5th Ave",
-      room: "1",
+
       aisle: "4",
       bin: nil,
-
+      building: "5th Ave",
+      category_codes: [],
+      description: "Rectangular tent, 4 people with luggage",
+      external_unit_price: 50,
       images: [],
+      internal_unit_price: 0,
+      name: "4x10 tent",
+      room: "1",
     )
 
     @sut.change_product_details(
       group_slug: @group_slug,
       product_slug: slug,
 
-      name: "Tente 4x10",
-      description: "Tente rectangulaire 4 personnes avec bagages",
-      internal_unit_price: 10,
-      external_unit_price: 80,
-      building: "5eme Ave",
-      room: "17",
       aisle: "13",
       bin: "bleu",
-
-      images: []
+      building: "5eme Ave",
+      category_codes: [],
+      description: "Tente rectangulaire 4 personnes avec bagages",
+      external_unit_price: 80,
+      images: [],
+      internal_unit_price: 10,
+      name: "Tente 4x10",
+      room: "17",
     )
 
-    products = @sut.find_products(nil)
+    products = @sut.find_products(group_slug: @group_slug, category_codes: [])
     assert_equal 1, products.size, products.inspect
     product = products.first
     assert product.present?
@@ -85,16 +89,17 @@ class ScoutinvTest < ActiveSupport::TestCase
   test "change product quantity" do
     slug = @sut.register_product(
       group_slug: @group_slug,
-      name: "4x10 tent",
-      description: "Rectangular tent, 4 people with luggage",
-      internal_unit_price: 0,
-      external_unit_price: 50,
-      building: "5th Ave",
-      room: "1",
+
       aisle: "4",
       bin: nil,
-
+      building: "5th Ave",
+      category_codes: [],
+      description: "Rectangular tent, 4 people with luggage",
+      external_unit_price: 50,
       images: [],
+      internal_unit_price: 0,
+      name: "4x10 tent",
+      room: "1",
     )
 
     @sut.change_product_quantity(group_slug: @group_slug, product_slug: slug, quantity: 4)
