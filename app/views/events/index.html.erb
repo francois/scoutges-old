@@ -1,5 +1,16 @@
 <h1>Events</h1>
 
+<%= form_tag group_events_path, method: :get do %>
+  <%= label_tag :after, "After:" %>
+  <%= date_field_tag :after, @after %>
+
+  <%= label_tag :q, "Query:" %>
+  <%= search_field_tag :q, @q %>
+
+  <%= submit_tag "Search", name: nil %>
+  <%= link_to "Show recent", group_events_path %>
+<% end %>
+
 <table>
   <col width="30%"/>
   <col width="30%"/>
@@ -15,6 +26,11 @@
     </tr>
   </thead>
   <tbody>
+    <% if @events.empty? %>
+      <td colspan="7">
+        <p>No events found</p>
+      </td>
+    <% end %>
     <% @events.each do |event| %>
       <tr>
         <td><%= link_to event.fetch(:name), group_event_path(event.fetch(:group_slug), event.fetch(:event_slug)) %></td>

@@ -20,7 +20,9 @@ class EventsController < ApplicationController
 
   def index
     set_group
-    @events = Scoutinv.new.find_events(group_slug: @group.fetch(:group_slug), after: 14.days.ago)
+    @after  = (params[:after] || 14.days.ago).to_date
+    @q = params[:q]
+    @events = Scoutinv.new.find_events(group_slug: @group.fetch(:group_slug), after: @after, search_string: @q)
     render
   end
 

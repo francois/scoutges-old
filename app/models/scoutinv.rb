@@ -521,15 +521,25 @@ class Scoutinv
   #     If nil, does not limit events by `start_on`.
   # @param before [NilClass | Date] Finds events that start_on or before this date.
   #     If nil, does not limit events by `start_on`.
-  def find_events(group_slug:, after: nil, before: nil, count: 25)
+  def find_events(group_slug:, after: nil, search_string: nil, before: nil, count: 25)
     ds = @events_ds
       .where(group_slug: group_slug)
       .left_join(@troops_ds.as(:troops), [:group_slug, :troop_slug])
       .select_all(:events)
       .select_append(Sequel[:troops][:name].as(:troop_name))
-    ds = ds.where{ Sequel[:events][:start_on] >= after  } if after
-    ds = ds.where{ Sequel[:events][:start_on] <= before } if before
+    ds = ds.where{ Sequel[:events][:start_on] >= after                               } if after.present?
+    ds = ds.where{ Sequel[:events][:start_on] <= before                              } if before.present?
     ds = ds.order(Sequel[:events][:start_on])
+
+    if search_string.present?
+      ds = ds.where(
+        Sequel.|(
+          Sequel.ilike(Sequel.function(:unaccent, Sequel[:events][:name]), Sequel.function(:unaccent, "%#{search_string}%")),
+          Sequel.ilike(Sequel.function(:unaccent, Sequel[:events][:description]), Sequel.function(:unaccent, "%#{search_string}%"))
+        )
+      )
+    end
+
     ds.take(count)
   end
 
@@ -644,7 +654,7 @@ class Scoutinv
       .left_join(@enrollments_ds.as(:enrollments), [:group_slug, :troop_slug])
       .left_join(@users_ds.as(:users), [:email])
       .where(group_slug: group_slug, event_slug: event_slug)
-      .select(Sequel[:events][:name].as(:event_name))
+      .select(Sequel[:events][:name].as(:event_name), Sequel[:events][:description].as(:event_description))
       .select_append(:group_slug, :troop_slug, :event_slug)
       .select_append(:leaser_name, :leaser_email, :leaser_phone)
       .select_append(Sequel[:events][:lease_on], Sequel[:events][:start_on])
@@ -662,6 +672,7 @@ class Scoutinv
 
     event.tap do
       event[:name] = rows.first.fetch(:event_name)
+      event[:description] = rows.first.fetch(:event_description)
 
       if rows.first.fetch(:troop_name)
         event[:troop] = {

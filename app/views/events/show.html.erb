@@ -21,6 +21,11 @@
   </ul>
 <% end %>
 
+<% if @event.fetch(:description).present? %>
+  <h2>Description</h2>
+  <%= simple_format @event.fetch(:description) %>
+<% end %>
+
 <h2>Schedule</h2>
 <table class="calendar">
   <thead>

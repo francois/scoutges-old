@@ -49,7 +49,7 @@ existed at that time were flagged as "completed". Future functions will receive 
 * [x] Register internal event _2019-07-02_
 * [x] Register external event _2019-07-02_
 * [x] List upcoming group events
-* [ ] List past group events
+* [x] List past group events
 * [ ] Edit event details
 * [x] Show event details _2019-07-02_
 * [x] Show event reservations _2019-07-02_
@@ -76,13 +76,14 @@ existed at that time were flagged as "completed". Future functions will receive 
 
 ## Kits
 
-* [ ] Register
-* [ ] Add instance
-* [ ] Remove instance
-* [ ] Reserve
+* [ ] Register kit
+* [ ] Add instance to kit
+* [ ] Remove instance from kit
+* [ ] Reserve kit
     * Reject reservation request if kit has any instance that isn't loanable
-* [ ] Lease
-* [ ] Return
+* [ ] Lease kit
+* [ ] Return kit
+* [ ] Print kit instances on invoice
 
 ## Administrators
 
