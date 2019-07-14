@@ -597,6 +597,7 @@ class Scoutinv
       .select_append(Sequel[:enrollments][:id].as(:enrollment_id))
       .where(group_slug: slug)
       .to_a
+    return nil if result.blank?
 
     members = result.each_with_object(Hash.new) do |row, memo|
       email = row.fetch(:user_email)

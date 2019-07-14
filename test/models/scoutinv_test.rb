@@ -4,15 +4,11 @@ require_relative "../test_helper"
 class ScoutinvTest < ActiveSupport::TestCase
   setup do
     @sut = Scoutinv.new
-    @group_slug = @sut.register_group(
-      name:           "10th",
-      admin_email:    "francois@teksol.info",
-      admin_name:     "Francois Beausoleil",
-      admin_phone:    "888 555-1212",
-      admin_password: "monkey",
-    )
 
-    @category_codes = DB[:categories].select_map(:category_code)
+    @group_slug = "10th"
+    @group = @sut.find_group(@group_slug)
+    assert @group
+    assert_equal @group_slug, @group.fetch(:group_slug)
   end
 
   test "registers product" do
@@ -114,6 +110,50 @@ class ScoutinvTest < ActiveSupport::TestCase
     @sut.change_product_quantity(group_slug: @group_slug, product_slug: slug, quantity: 3)
     product = @sut.find_product(group_slug: @group_slug, product_slug: slug)
     assert_equal 3, product.fetch(:num_instances)
+  end
+
+  test "finds products by category" do
+    slug1 = @sut.register_product(
+      group_slug: @group_slug,
+
+      aisle: "4",
+      bin: nil,
+      building: "5th Ave",
+      category_codes: ["camping_gear"],
+      description: "Rectangular tent, 4 people with luggage",
+      external_unit_price: 50,
+      images: [],
+      internal_unit_price: 0,
+      name: "4x10 tent",
+      room: "1",
+    )
+
+    slug2 = @sut.register_product(
+      group_slug: @group_slug,
+
+      aisle: nil,
+      bin: nil,
+      building: nil,
+      category_codes: ["perishables"],
+      description: "",
+      external_unit_price: 2,
+      images: [],
+      internal_unit_price: 1,
+      name: "Can of tomato soup",
+      room: nil,
+    )
+
+    # Only finds products with no categories, none exist
+    assert @sut.find_products(group_slug: @group_slug, category_codes: []).empty?
+
+    # Finds the sole product in the camping gear category
+    assert_equal [slug1], @sut.find_products(group_slug: @group_slug, category_codes: ["camping_gear"]).map{|prod| prod[:product_slug]}
+
+    # Finds the sole product in the perishables category
+    assert_equal [slug2], @sut.find_products(group_slug: @group_slug, category_codes: ["perishables"]).map{|prod| prod[:product_slug]}
+
+    # Finds all products in all categories
+    assert_equal [slug1, slug2].to_set, @sut.find_products(group_slug: @group_slug, category_codes: @category_codes).map{|prod| prod[:product_slug]}.to_set
   end
 
   test "registers an internal event" do
