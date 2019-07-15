@@ -82,14 +82,18 @@
 </table>
 
 <h2>Reservations</h2>
-<ul>
-<% @reservations.each do |reservation| %>
-  <li>
-    <%= image_tag reservation.fetch(:image_paths).first, alt: "", width: 250 if reservation.fetch(:image_paths).any? %>
-    <p><%= link_to reservation.fetch(:product_name), group_product_path(reservation.fetch(:group_slug), reservation.fetch(:product_slug)) %></p>
-    <% if reservation.fetch(:num_instances) > 1 %>
-      <p>Quantity: <%= number_with_delimiter reservation.fetch(:num_instances) %></p>
-    <% end %>
-  </li>
-<% end %>
-</ul>
+<div class="media-grid">
+  <% @reservations.each do |reservation| %>
+    <div class="media">
+      <%= link_to group_product_path(reservation.fetch(:group_slug), reservation.fetch(:product_slug)), class: "img" do %>
+        <%= image_tag reservation.fetch(:image_paths).first, alt: "", width: 250 if reservation.fetch(:image_paths).any? %>
+      <% end %>
+      <h3 class="title">
+        <%= link_to reservation.fetch(:product_name), group_product_path(reservation.fetch(:group_slug), reservation.fetch(:product_slug)) %>
+        <% if reservation.fetch(:num_instances) > 1 %>
+          (<%= number_with_delimiter reservation.fetch(:num_instances) %>)
+        <% end %>
+      </h3>
+    </div>
+  <% end %>
+</div>
