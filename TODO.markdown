@@ -50,7 +50,7 @@ existed at that time were flagged as "completed". Future functions will receive 
 * [x] Register external event _2019-07-02_
 * [x] List upcoming group events _2019-07-02_
 * [x] List past group events _2019-07-14_
-* [ ] Edit event details
+* [x] Edit event details _2019-07-15_
 * [x] Show event details _2019-07-02_
 * [x] Show event reservations _2019-07-02_
 * [ ] Reserve product from catalog page

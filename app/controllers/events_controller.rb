@@ -2,7 +2,7 @@
 require "types"
 
 class EventsController < ApplicationController
-  RegisterEventSchema = Dry::Schema.Params do
+  EventSchema = Dry::Schema.Params do
     required(:name).filled(Types::StrippedString)
     required(:description).maybe(Types::StrippedString)
     required(:lease_on).filled(:date)
@@ -34,7 +34,7 @@ class EventsController < ApplicationController
 
   def create
     set_group
-    @result = RegisterEventSchema.call(params[:event].to_h)
+    @result = EventSchema.call(params[:event].to_h)
     if @result.success?
       output     = @result.output
       scoutinv   = Scoutinv.new
@@ -70,6 +70,43 @@ class EventsController < ApplicationController
       @event = params[:event]
         .slice(:name, :description, :lease_on, :start_on, :end_on, :return_on, :troop_slug, :leaser_name, :leaser_email, :leaser_phone)
       render action: :new
+    end
+  end
+
+  def edit
+    set_group
+    @event = Scoutinv.new.find_event(group_slug: @group.fetch(:group_slug), event_slug: params[:id])
+    render
+  end
+
+  def update
+    set_group
+    @result = EventSchema.call(params[:event].to_h)
+    if @result.success?
+      output     = @result.output
+      scoutinv   = Scoutinv.new
+      DB.transaction do
+        scoutinv.change_event_details(
+          group_slug:   @group.fetch(:group_slug),
+          event_slug:   params[:id],
+
+          description:  output.fetch(:description) || "",
+          end_on:       output.fetch(:end_on),
+          lease_on:     output.fetch(:lease_on),
+          leaser_email: output.fetch(:leaser_email),
+          leaser_name:  output.fetch(:leaser_name),
+          leaser_phone: output.fetch(:leaser_phone),
+          name:         output.fetch(:name),
+          return_on:    output.fetch(:return_on),
+          start_on:     output.fetch(:start_on),
+          troop_slug:   output.fetch(:troop_slug),
+        )
+      end
+      redirect_to group_event_path(params[:group_id], params[:id])
+    else
+      @event = params[:event]
+        .slice(:name, :description, :lease_on, :start_on, :end_on, :return_on, :troop_slug, :leaser_name, :leaser_email, :leaser_phone)
+      render action: :edit
     end
   end
 

@@ -1,0 +1,37 @@
+<%= render_errors @result&.errors %>
+
+<%= label_tag :event_name, "Name" %><br>
+<%= text_field_tag "event[name]", @event[:name] %><br>
+
+<%= label_tag :event_description, "Description" %><br>
+<%= text_area_tag "event[description]", @event[:description], size: "80x5" %><br>
+
+<%= label_tag :event_lease_on, "Lease on" %><br>
+<%= date_field_tag "event[lease_on]", @event[:lease_on] %><br>
+
+<%= label_tag :event_start_on, "Start on" %><br>
+<%= date_field_tag "event[start_on]", @event[:start_on] %><br>
+
+<%= label_tag :event_end_on, "End on" %><br>
+<%= date_field_tag "event[end_on]", @event[:end_on] %><br>
+
+<%= label_tag :event_return_on, "Return on" %><br>
+<%= date_field_tag "event[return_on]", @event[:return_on] %><br>
+
+<fieldset>
+  <legend>Internal</legend>
+<%= label_tag :event_troop_slug, "Troop" %><br>
+<%= select_tag "event[troop_slug]", options_for_select(@group[:troops].map{|troop| [troop[:name], troop[:troop_slug]]}.sort_by{|arr| arr.first.downcase}.unshift(["", ""]), @event[:troop_slug]) %><br>
+</fieldset>
+
+<fieldset>
+  <legend>External</legend>
+  <%= label_tag :leaser_name, "Name" %><br>
+  <%= text_field_tag "event[leaser_name]", @event[:leaser_name] %><br>
+
+  <%= label_tag :leaser_email, "Email" %><br>
+  <%= text_field_tag "event[leaser_email]", @event[:leaser_email] %><br>
+
+  <%= label_tag :leaser_phone, "Phone" %><br>
+  <%= text_field_tag "event[leaser_phone]", @event[:leaser_phone] %><br>
+</fieldset>
