@@ -310,6 +310,40 @@ class Scoutinv
     end
   end
 
+  def change_event_details(group_slug:, event_slug:,
+    troop_slug:,
+    leaser_name:,
+    leaser_phone:,
+    leaser_email:,
+
+    name:,
+    description:,
+
+    lease_on:,
+    start_on:,
+    end_on:,
+    return_on:
+  )
+    updated_attrs = {
+      troop_slug: troop_slug,
+      leaser_name: leaser_name,
+      leaser_phone: leaser_phone,
+      leaser_email: leaser_email,
+
+      name: name,
+      description: description,
+
+      lease_on: lease_on,
+      start_on: start_on,
+      end_on: end_on,
+      return_on: return_on
+    }
+
+    @events_ds
+      .where(group_slug: group_slug, event_slug: event_slug)
+      .update(updated_attrs)
+  end
+
   def add_product_to_event(group_slug:, event_slug:, product_slug:, quantity: 1)
     # When we introduce kits, this query will need to evolve to reduce
     # the likelyhood of reserving an instance that belongs on a kit

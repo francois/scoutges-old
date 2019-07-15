@@ -1,0 +1,5 @@
+<%= form_tag group_event_path(@group.fetch(:group_slug), @event.fetch(:event_slug)), method: :put do %>
+  <%= render partial: "form" %>
+
+  <%= submit_tag "Update Event" %>
+<% end %>

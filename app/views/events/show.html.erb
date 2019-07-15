@@ -97,3 +97,7 @@
     </div>
   <% end %>
 </div>
+
+<p style="clear:both">
+<%= link_to "Edit event", edit_group_event_path(@event.fetch(:group_slug), @event.fetch(:event_slug)) %>
+</p>
