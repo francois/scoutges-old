@@ -100,4 +100,5 @@
 
 <p style="clear:both">
 <%= link_to "Edit event", edit_group_event_path(@event.fetch(:group_slug), @event.fetch(:event_slug)) %>
+<%= link_to "Change reservations", group_reservation_path(@event.fetch(:group_slug), @event.fetch(:event_slug)) %>
 </p>

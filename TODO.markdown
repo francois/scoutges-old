@@ -53,7 +53,7 @@ existed at that time were flagged as "completed". Future functions will receive 
 * [x] Edit event details _2019-07-15_
 * [x] Show event details _2019-07-02_
 * [x] Show event reservations _2019-07-02_
-* [ ] Reserve product from catalog page
+* [x] Reserve product from catalog page _2019-07-16_
 * [ ] Change product reserved quantity from event details page
 * [ ] Print internal invoice
 * [ ] Print external invoice

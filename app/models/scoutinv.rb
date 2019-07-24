@@ -732,6 +732,62 @@ class Scoutinv
     end
   end
 
+  def find_entities_available_for_rental(group_slug:, start_on:, end_on:, search_string:, category_codes:)
+    # SELECT
+    #   products.name
+    # , group_slug
+    # , product_slug
+    # , products.description
+    # , coalesce(instances.state, 'unavailable') AS state
+    # , CASE
+    #   WHEN instances.id    IS NULL OR instances.state <> 'available' THEN false
+    #   WHEN reservations.id IS NULL THEN true
+    #   ELSE not daterange(lease_on, return_on, '[]') && daterange(date '2019-07-01', date '2019-08-04', '[]')
+    #   END AS available
+    # , array_agg(DISTINCT product_images.blob_slug) AS blob_slugs
+    # , array_agg(DISTINCT product_categories.category_code) AS category_codes
+    # , count(instance_slug) AS num_instances
+    # FROM products
+    # LEFT JOIN instances USING (group_slug, product_slug)
+    # LEFT JOIN reservations USING (group_slug, instance_slug)
+    # LEFT JOIN events USING (group_slug, event_slug)
+    # LEFT JOIN product_images USING (group_slug, product_slug)
+    # LEFT JOIN product_categories USING (group_slug, product_slug)
+    # GROUP BY 1,2,3,4,5,6
+    # ORDER BY lower(unaccent(products.name))
+
+    exclusions_sql = <<~EOSQL.squish
+      CASE
+      WHEN instances.id    IS NULL OR instances.state <> 'available' THEN false
+      WHEN reservations.id IS NULL THEN true
+      ELSE not daterange(lease_on, return_on, '[]') && daterange(date '#{start_on.iso8601}', date '#{end_on.iso8601}', '[]')
+      END
+    EOSQL
+
+    products = @products_ds
+      .left_join(@instances_ds.as(:instances), [:group_slug, :product_slug])
+      .left_join(@reservations_ds.as(:reservations), [:group_slug, :instance_slug])
+      .left_join(@events_ds.as(:events), [:group_slug, :event_slug])
+      .left_join(@product_images_ds.as(:product_images), [:group_slug, :product_slug])
+      .left_join(@product_categories_ds.as(:product_categories), [:group_slug, :product_slug])
+      .order_by(Sequel.function(:lower, Sequel.function(:unaccent, Sequel[:products][:name])))
+      .select(:group_slug, :product_slug, Sequel[:products][:name], Sequel[:products][:description])
+      .select_append(Sequel.function(:coalesce, Sequel[:instances][:state], "unavailable").as(:state))
+      .select_append(Sequel.lit(exclusions_sql).as(:available))
+      .select_append(Sequel.function(:array_agg, Sequel.lit('DISTINCT "product_images"."blob_slug"')).as(:blob_slugs))
+      .select_append(Sequel.function(:array_agg, Sequel.lit('DISTINCT "product_categories"."category_code" ORDER BY "product_categories"."category_code"')).as(:category_codes))
+      .select_append(Sequel.function(:count, Sequel[:instances][:instance_slug]).as(:num_instances))
+      .group_by(1, 2, 3, 4, 5, 6)
+      .to_a
+
+    products.each_with_object(Hash.new) do |product, memo|
+      memo[product.fetch(:product_slug)] ||= product.except(:state, :num_instances).merge(instances: {})
+      memo[product.fetch(:product_slug)].fetch(:instances).merge!(
+        product[:state] => product[:num_instances]
+      )
+    end
+  end
+
   private
 
   attr_reader :blob_storage
@@ -775,7 +831,7 @@ class Scoutinv
       .left_join(@product_categories_ds.as(:product_categories), [:group_slug, :product_slug])
       .where(Sequel[:products][:group_slug] => group_slug)
       .group_by(Sequel[:products][:id], Sequel[:products][:group_slug], Sequel[:products][:product_slug])
-      .order_by(Sequel.function(:unaccent, Sequel[:products][:name]))
+      .order_by(Sequel.function(:lower, Sequel.function(:unaccent, Sequel[:products][:name])))
       .select_all(:products)
       .select_append{ count(instance_slug).as(:num_instances) }
       .select_append(Sequel.function(:array_agg, Sequel.lit('DISTINCT "product_images"."blob_slug"')).as(:blob_slugs))
