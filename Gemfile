@@ -13,7 +13,7 @@ gem "escape"
 gem "jbuilder", "~> 2.5"
 gem "listen", ">= 3.0.5", "< 3.2", groups: %i[ development ]
 gem "pg"
-gem "puma", "< 4.0"
+gem "puma", "< 5.0"
 gem "que", "~> 1.0.0.beta3"
 gem "rails", "~> 5.2.3"
 gem "s3"
