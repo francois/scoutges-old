@@ -15,7 +15,7 @@ gem "listen", ">= 3.0.5", "< 3.2", groups: %i[ development ]
 gem "pg"
 gem "puma", "< 5.0"
 gem "que", "~> 1.0.0.beta3"
-gem "rails", "~> 6.0.0"
+gem "rails", "~> 6.0.2"
 gem "s3"
 gem "sequel"
 gem "sequel-rails"
